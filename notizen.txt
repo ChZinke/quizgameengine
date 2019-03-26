@@ -1,0 +1,9 @@
+- answer-ids sind 1-4 pro frage --> nicht eindeutig, später datenmodell ändern oder id's anpassen
+- static klassen wie in java für game pool?
+- questions direkt durch lobbypool -> lobby -> game durchgeben, wenn model für quiz implementiert ist darüber; im moment funktion in game holt immer die gleichen fragen
+
+- kann man beim websocket von außen das senden triggern? sonst muss state in lobby und game geführt werden und socket muss schauen ob da was drin steht
+  --> wenn ja dann senden
+- wenn play gedrückt wird --> lobby aufmachen, erst dann user in userbox anzeigen und chat ermöglichen
+
+- wenn problem beim game (waiting player hinzufügen) probleme mit Copies auftreten, Methoden für Game Manipulation direkt in GamePool umlagern

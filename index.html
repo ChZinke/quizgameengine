@@ -8,24 +8,30 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<style>
-#myProgress {
-  width: 100%;
-  background-color: grey;
-}
-
-#myBar {
-  width: 0%;
-  height: 30px;
-  background-color: green;
-}
-</style>
+    <style>
+        #myProgress {
+            width: 100%;
+            background-color: grey;
+        }
+        #myBar {
+            width: 0%;
+            height: 30px;
+            background-color: green;
+        }
+    </style>
 </head>
 <body>
-<div class="container px-lg-5" style="width:100%; padding: 20px; overflow-y: scroll;" id="room">
+<div id="menu" class="container px-lg-5" style="width:100%, padding: 20px; overflow-y: scroll; display:inline">
+  <div style="padding-top: 20px;">
+    <form onsubmit=" return startLobby()">
+      <button style="width: 25%">Play</button>
+    </form>
+  </div>
+</div>
+<div id="room" class="container px-lg-5" style="width:100%; padding: 20px; overflow-y: scroll; display:none">
     <div class="row">
         <div class="col-8 alert alert-success" role="alert" id="messages"><h2>Chat</h2></div>
-        <div class="col-4 alert alert-info" role="alert" id="users"><h2>User</h2>
+        <div class="col-4 alert alert-info" role="alert" id="users"><h2>Users</h2>
             <div id="users-id"></div>
         </div>
     </div>
@@ -33,11 +39,6 @@
         <form onsubmit="return sendMessage()">
             <input id="message" type="text" style="width: 70%;">
             <button style="width: 25%">Send</button>
-        </form>
-    </div>
-    <div style="padding-top: 20px;">
-        <form onsubmit="return startGame()">
-            <button style="width: 25%">Play</button>
         </form>
     </div>
 </div>
@@ -62,36 +63,58 @@
         </div>
     </div>
 </div>
+
+<div id="scoreboard" class="container" style="display:none">
+    <div class="col-8 alert alert-success" role="alert" id="scores"><h2>Scoreboard</h2>
+        <div id="scores-id"></div>
+    </div>
+    <form onsubmit=" return backToMenu()">
+      <button style="width: 25%">Back to Menu</button>
+    </form>
 </div>
+
+<!-- game functions -->
 <script>
-    function onclickanswer(e){
+    var pID = -1
+    var gameID = -1
 
-        var aid = e.id;
+    function onclickanswer(answerID, questionID){
         var payload = {
-            "type": "answer_quest",
-            "user": username,
-            "id" : aid
+            "type": "answered_question",
+            "p_id": pID,
+            "game_id": gameID,
+            "q_id": -1,
+            "a_id" : answerID
         };
+        //TODO trigger button disable
         // Make the request to the WebSocket.
-        ws.send(JSON.stringify(payload));
+        sendSocket(payload);
     }
+    function startLobby(){
+      document.getElementById("menu").style.display = "none"
+      document.getElementById("room").style.display = "inline"
 
-
-
+      var payload = {
+        "type": "join_lobby",
+        "p_id": pID
+      }
+      sendSocket(payload);
+      return false;
+    }
     function startGame() {
         //check player...
-
         //hide chat
         document.getElementById("room").style.display = "none"
         document.getElementById("game").style.display = "inline"
-
-        var payload = {
-            "type": "question"
-        }
-        // Make the request to the WebSocket.
-        ws.send(JSON.stringify(payload));
-        move()
-
+        return false;
+    }
+    function startScoreboard(){
+        document.getElementById("game").style.display = "none"
+        document.getElementById("scoreboard").style.display = "inline"
+    }
+    function backToMenu(){
+        document.getElementById("scoreboard").style.display = "none"
+        document.getElementById("menu").style.display = "inline"
         return false;
     }
 
@@ -102,11 +125,10 @@
         var payload = {
             "type": "question"
         }
-
         function frame() {
             if (width == 100) {
                 // Make the request to the WebSocket.
-                ws.send(JSON.stringify(payload));
+                sendSocket(payload);
                 elem.style.width = '0%';
                 clearInterval(id);
                 move()
@@ -115,86 +137,115 @@
                 elem.style.width = width + '%';
             }
         }
-
-
         //next question
     }
-
-
     var username = prompt("What's your name?");
     var ws = new WebSocket("ws://localhost:8888/websocket/username/" + username);
     ws.onmessage = function (evt) {
-        console.log(evt)
+        console.log(evt.data)
         var messageDict = JSON.parse(evt.data);
         // Create a div with the format `user: message`.
-
         if ('type' in messageDict) {
             switch (messageDict.type) {
+                case "login": {
+                  if(messageDict.p_id != -1){
+                    alert("successfully logged in");
+                    pID = messageDict.p_id
+                  }
+                  else{
+                    alert("user not known");
+                  }
+                }
+                break;
                 //do some message
                 case "user_message": {
                     var messageBox = document.createElement("div");
-                    messageBox.innerHTML = messageDict.user + ": " + messageDict.message;
+                    messageBox.innerHTML = messageDict.p_id + ": " + messageDict.message;
                     document.getElementById("messages").appendChild(messageBox)
                 }
-                    break;
+                break;
                 //close connect
                 case "close": {
                     var n_div = document.getElementById("users-id").getElementsByTagName('div');
                     //var users = messageDict.user.split(',');
                     for (var i = 0, n = n_div.length; i < n; i = i + 1) {
-
                         var s_id = n_div[i].id;
                         if (!messageDict.user.includes(s_id)) {
-
                             document.getElementById(s_id).remove();
                         }
                     }
-
                 }
                 //open connection
-                case "open": {
-
-                    //var users = messageDict.user.split(',');
-                    if(typeof(messageDict.user) == 'string') {
-                        messageDict.user = [messageDict.user];
-                    }
-                    for (id in messageDict.user) {
-
-                        if (document.getElementById(messageDict.user[id]) == null) {
-
-                            var userBox = document.createElement("div");
-                            userBox.innerHTML = messageDict.user[id];
-                            userBox.setAttribute('id', messageDict.user[id]);
-                            document.getElementById("users-id").appendChild(userBox)
+                case "lobby": {
+                    //remove all old users from the box to avoid duplicates
+                    var users = document.getElementById("users-id");
+                    if(users.hasChildNodes()){
+                        var children = users.childNodes;
+                        for(var i = 0; i < children.length; i++){
+                            users.removeChild(children[i]);
                         }
                     }
 
+                    //put the users
+                    for (id in messageDict.lobby) {
+                        var userBox = document.createElement("div");
+                        userBox.innerHTML = messageDict.lobby[id];
+                        userBox.setAttribute('id', messageDict.lobby[id]);
+                        document.getElementById("users-id").appendChild(userBox);
+                    }
+                }
+                break;
+                case "game_start":{
+                    gameID = messageDict.game_id;
+                    startGame();
                 }
                 break;
                 //do a question
                 case 'question': {
-                    document.getElementById('question').innerHTML = messageDict.question;
-
-                    var answers = messageDict.answers;
+                    document.getElementById('question').innerHTML = messageDict.question.questioning;
+                    var answers = messageDict.question.answers;
                     for (answerid in answers ){
-
-                        document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid];
+                        document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid].content;
                     }
-
                     var b_answers = document.getElementsByClassName('answer');
-
                     for (var i=0; i < b_answers.length; i++){
-
-                        b_answers[i].onclick = function(e){ onclickanswer(this) };
+                        console.log(i + 1 + " " + messageDict.question.id)
+                        b_answers[i].onclick = function(e){ onclickanswer(i + 1, messageDict.question.id) }; //put this as param back in
                         b_answers[i].className = "col py-3 px-lg-5 btn btn-outline-info answer";
                     }
+                    //TODO start timer bar
+                }
+                break;
+                case "scoreboard": {
+
+                    //remove any old scores from previous games
+                    var oldScores = document.getElementById("scores-id");
+                    if(oldScores.hasChildNodes()){
+                        var children = oldScores.childNodes;
+                        for(var i = 0; i < children.length; i++){
+                            oldScores.removeChild(children[i]);
+                        }
+                    }
+
+                    //create new div containing playerID : score for each participant
+                    //TODO fix display of score of previous games
+                    for(playerID in messageDict.scoreboard){
+                        var scoreBox = document.createElement("div");
+                        if(playerID == pID){ //my own score
+                            scoreBox.innerHTML = "you: " + messageDict.scoreboard[playerID];
+                        }
+                        else{
+                            scoreBox.innerHTML = playerID + ": " + messageDict.scoreboard[playerID];
+                        }
+                        document.getElementById("scores-id").appendChild(scoreBox);
+                    }
+                    startScoreboard();
 
                 }
                 break;
                 //answered question
                 case 'answer_quest': {
                     var b_answers = document.getElementsByClassName('answer');
-
                     for (var i=0; i<b_answers.length; i++){
                         b_answers[i].onclick = false;
                         b_answers[i].className = "col py-3 px-lg-5 btn btn btn-secondary answer";
@@ -202,41 +253,40 @@
                     document.getElementById(messageDict.id).className = "col py-3 px-lg-5 btn btn btn-primary answer";
                 }
                 break;
-
             }
-
         } else {
-            alert('something getting wrong')
+            //alert('something getting wrong')
         }
         ;
     };
-
     ws.onopen = function (e) {
         var welcome = {
-            "type": 'open',
+            "type": 'login',
             "user": username
         }
-        ws.send(JSON.stringify(welcome));
+        sendSocket(welcome);
     }
-
     function sendMessage() {
         var messageInput = document.getElementById("message");
         var message = messageInput.value;
         var payload = {
             "type": "user_message",
             "message": message,
-            "user": username
+            "p_id": pID
         }
         // Make the request to the WebSocket.
-        ws.send(JSON.stringify(payload));
+        sendSocket(payload);
         // Clear the message from the input.
         messageInput.value = "";
         return false;
     }
 
+    function sendSocket(payload){
+        jsonMessage = JSON.stringify(payload)
+        ws.send(jsonMessage);
+        console.log("sent: " + jsonMessage);
+    }
 </script>
-
-
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"
         integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"

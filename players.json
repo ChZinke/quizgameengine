@@ -1,0 +1,1 @@
+{"highest_id": 4, "players": [{"id": 1, "mail": "test@mail.de", "nickname": "test1", "password": "123"}, {"id": 2, "nickname": "test2", "password": "1234", "mail": "test2@mail.de"}, {"id": 3, "nickname": "test3", "password": "1234", "mail": "test3@mail.de"}, {"id": 4, "nickname": "test4", "password": "1234", "mail": "test3@mail.de"}]}
