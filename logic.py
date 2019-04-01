@@ -35,7 +35,9 @@ class Lobby:
 
     def send_lobby_state_to_players(self):
         msg = json.dumps({'type':'lobby',
-                          'lobby': [player.get_id() for player in self.players]})
+                          'lobby': [player.get_id() for player in self.players],
+                          'nicks': [player.get_nickname() for player in self.players]})
+
         self.notify_players(msg)
 
     def open_game(self):

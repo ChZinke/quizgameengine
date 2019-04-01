@@ -1,6 +1,3 @@
-import json
-import time
-from multiprocessing import Process
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
@@ -68,6 +65,8 @@ def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/websocket", SimpleWebSocket),
+        (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": "./css/"},),
+        (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": "./img/"},),
         (r"/websocket/username/(.*)", SimpleWebSocket)
     ])
 

@@ -8,39 +8,194 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/css/style.css">
+
     <style>
-        #myProgress {
-            width: 100%;
-            background-color: grey;
-        }
-        #myBar {
-            width: 0%;
-            height: 30px;
-            background-color: green;
-        }
+
     </style>
 </head>
 <body>
-<div id="menu" class="container px-lg-5" style="width:100%, padding: 20px; overflow-y: scroll; display:inline">
-  <div style="padding-top: 20px;">
-    <form onsubmit=" return startLobby()">
-      <button style="width: 25%">Play</button>
-    </form>
-  </div>
-</div>
-<div id="room" class="container px-lg-5" style="width:100%; padding: 20px; overflow-y: scroll; display:none">
-    <div class="row">
-        <div class="col-8 alert alert-success" role="alert" id="messages"><h2>Chat</h2></div>
-        <div class="col-4 alert alert-info" role="alert" id="users"><h2>Users</h2>
-            <div id="users-id"></div>
+
+
+<header>
+      <div class="collapse  bg-dark" id="navbarHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4 class="text-white">About</h4>
+              <p class="text-muted">This is an easy quiz. Add more text here if needed, otherwise play.</p>
+            </div>
+            <div class="col-sm-4 offset-md-1 py-4">
+              <h4 class="text-white">Contact</h4>
+              <ul class="list-unstyled">
+                <li><a href="#" class="text-white">Follow on Twitter</a></li>
+                <li><a href="#" class="text-white">Github</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
-    </div>
-    <div style="padding-top: 20px;">
-        <form onsubmit="return sendMessage()">
-            <input id="message" type="text" style="width: 70%;">
-            <button style="width: 25%">Send</button>
-        </form>
-    </div>
+      </div>
+      <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+          <a href="#" class="navbar-brand d-flex align-items-center">
+            <strong>PAQ - Next level quizing</strong>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+</header>
+
+<main role="main">
+    <section class="jumbotron text-center" id="menu" >
+        <div class="row">
+            <div class="container px-lg-5" style="display:inline">
+                <div style="padding-top: 20px;">
+                    <form onsubmit=" return startLobby()">
+                        <select class="custom-select custom-select-lg mb-3">
+                            <option selected>Spiele</option>
+                            <option value="1">Filme</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        <button class="btn btn-primary my-2">Create a game</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-body">
+                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&amp;bg=55595c&amp;fg=eceeef&amp;text=PlayTheGame" alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22348%22%20height%3D%22225%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20348%20225%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_169c9f4fabb%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A17pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_169c9f4fabb%22%3E%3Crect%20width%3D%22348%22%20height%3D%22225%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22116.7265625%22%20y%3D%22120.3%22%3EPlayTheGame%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
+                        <p class="card-text">Spiel 1: Filmeraten, bisher 2 Spieler wartend</p>
+                        <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Ulf</li>
+                            <li class="list-group-item">Sophi</li>
+                        </ul>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary">Join</button>
+                            </div>
+                            <small class="text-muted">1 min ago started</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-body">
+                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&amp;bg=55595c&amp;fg=eceeef&amp;text=PlayTheGame" alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22348%22%20height%3D%22225%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20348%20225%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_169c9f4fabb%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A17pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_169c9f4fabb%22%3E%3Crect%20width%3D%22348%22%20height%3D%22225%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22116.7265625%22%20y%3D%22120.3%22%3EPlayTheGame%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
+                        <p class="card-text">Spiel 1: Filmeraten, bisher 2 Spieler wartend</p>
+                        <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Ulf</li>
+                            <li class="list-group-item">Sophi</li>
+                        </ul>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary">Join</button>
+                            </div>
+                            <small class="text-muted">1 min ago started</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                    <div class="card-body">
+                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&amp;bg=55595c&amp;fg=eceeef&amp;text=PlayTheGame" alt="Thumbnail [100%x225]" style="height: 225px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22348%22%20height%3D%22225%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20348%20225%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_169c9f4fabb%20text%20%7B%20fill%3A%23eceeef%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A17pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_169c9f4fabb%22%3E%3Crect%20width%3D%22348%22%20height%3D%22225%22%20fill%3D%22%2355595c%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22116.7265625%22%20y%3D%22120.3%22%3EPlayTheGame%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
+                        <p class="card-text">Spiel 1: Filmeraten, bisher 2 Spieler wartend</p>
+                        <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Ulf</li>
+                            <li class="list-group-item">Sophi</li>
+                        </ul>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary">Join</button>
+                            </div>
+                            <small class="text-muted">1 min ago started</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+<div class="py-5 bg-light" id="room" style="display:none;">
+    	<div class="container-fluid h-100" id="room_inline" >
+			<div class="row justify-content-center h-100">
+				<div class="col-md-4 col-xl-3 chat"><div class="card mb-sm-3 mb-md-0 contacts_card">
+					<div class="card-header">
+						<div class="input-group">
+							<input type="text" placeholder="Search..." name="" class="form-control search">
+							<div class="input-group-prepend">
+								<span class="input-group-text search_btn"><i class="fas fa-search"></i></span>
+							</div>
+						</div>
+					</div>
+					<div class="card-body contacts_body">
+						<ui class="contacts" id="contacts">
+
+						</ui>
+					</div>
+					<div class="card-footer"></div>
+				</div></div>
+				<div class="col-md-8 col-xl-6 chat">
+					<div class="card">
+						<div class="card-header msg_head">
+							<div class="d-flex bd-highlight">
+								<div class="img_cont">
+									<img src="/img/132_Chess_laptop_strategy_game-256.png" class="rounded-circle user_img">
+									<span class="online_icon"></span>
+								</div>
+								<div class="user_info">
+									<span>Spiellobby für Spiel 1</span>
+									<p>der wahnsinn</p>
+								</div>
+								<div class="video_cam">
+									<span><i class="fas fa-video"></i></span>
+									<span><i class="fas fa-phone"></i></span>
+								</div>
+							</div>
+							<span id="action_menu_btn"><i class="fas fa-ellipsis-v"></i></span>
+
+						</div>
+						<div class="card-body msg_card_body" id="messages">
+
+
+						</div>
+                         <form onsubmit="return sendMessage()">
+						<div class="card-footer">
+
+							<div class="input-group">
+								<div class="input-group-append">
+									<span class="input-group-text attach_btn"><i class="fas fa-paperclip"></i></span>
+								</div>
+
+								<textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+								<div class="input-group-append">
+									<button class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></button>
+								</div>
+
+							</div>
+						</div>
+                        </form>
+					</div>
+				</div>
+			</div>
+		</div>
+
 </div>
 
 
@@ -72,7 +227,7 @@
       <button style="width: 25%">Back to Menu</button>
     </form>
 </div>
-
+</main>
 <!-- game functions -->
 <script>
     var pID = -1
@@ -160,7 +315,22 @@
                 //do some message
                 case "user_message": {
                     var messageBox = document.createElement("div");
-                    messageBox.innerHTML = messageDict.p_id + ": " + messageDict.message;
+                    messageBox.className = 'd-flex justify-content-start mb-4';
+                    var userbox = document.createElement('div');
+                    userbox.className = 'img_cont_msg';
+                    var userimg = document.createElement('img');
+                    userimg.className =  'rounded-circle user_img_msg'
+                    userimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
+                    userbox.appendChild(userimg);
+                    var usermsg = document.createElement('div');
+                    usermsg.className = "msg_cotainer";
+                    usermsg.innerHTML = messageDict.message
+                    var usertime = document.createElement('span');
+                    usertime.className = "msg_time";
+                    usertime.innerHTML = "8:40 AM, Today";
+                    usermsg.appendChild(usertime);
+                    messageBox.appendChild(userbox);
+                    messageBox.appendChild(usermsg);
                     document.getElementById("messages").appendChild(messageBox)
                 }
                 break;
@@ -178,7 +348,7 @@
                 //open connection
                 case "lobby": {
                     //remove all old users from the box to avoid duplicates
-                    var users = document.getElementById("users-id");
+                    var users = document.getElementById("contacts");
                     if(users.hasChildNodes()){
                         var children = users.childNodes;
                         for(var i = 0; i < children.length; i++){
@@ -188,10 +358,30 @@
 
                     //put the users
                     for (id in messageDict.lobby) {
-                        var userBox = document.createElement("div");
-                        userBox.innerHTML = messageDict.lobby[id];
+                        var userBox = document.createElement("li");
+                        userBox.className = 'active';
+                        //userBox.innerHTML = messageDict.lobby[id];
+                        var userdiv = document.createElement('div');
+                            userdiv.className = 'd-flex bd-highlight';
+                        var imgdiv = document.createElement('div');
+                            imgdiv.className = 'img_cont';
+                        var uimg = document.createElement('img');
+                            uimg.className = 'rounded-circle user_img';
+                            uimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
+                        var uimgspan = document.createElement('span');
+                            uimgspan.className = 'online_icon';
+                        imgdiv.appendChild(uimg)
+                        imgdiv.appendChild(uimgspan)
+                        var udivdesc = document.createElement('div');
+                            udivdesc.className = 'user_info';
+                        var udivtext = document.createElement('span');
+                            udivtext.innerHTML = messageDict.nicks[id];
+                        udivdesc.appendChild(udivtext)
+                        userdiv.appendChild(imgdiv)
+                        userdiv.appendChild(udivdesc)
+                        userBox.appendChild(userdiv)
                         userBox.setAttribute('id', messageDict.lobby[id]);
-                        document.getElementById("users-id").appendChild(userBox);
+                        document.getElementById("contacts").appendChild(userBox);
                     }
                 }
                 break;
