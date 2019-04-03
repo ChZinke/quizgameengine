@@ -1,3 +1,3 @@
 - answer-ids sind 1-4 pro frage --> nicht eindeutig, später datenmodell ändern oder id's anpassen
-
 - questions direkt durch lobbypool -> lobby -> game durchgeben, wenn model für quiz implementiert ist darüber; im moment funktion in game holt immer die gleichen fragen
+- quiz objekte in game/lobby einbauen

@@ -1,0 +1,17 @@
+{
+    "highest_id": 2,
+    "quizzes": [
+        {
+            "id": 1,
+            "title": "Filmzitate raten",
+            "length": 5,
+            "min_participants": 2
+        },
+        {
+            "id":2,
+            "title": "dummy",
+            "length": 10,
+            "min_participants": 5
+        }
+    ]
+}

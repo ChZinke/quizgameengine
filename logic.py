@@ -1,6 +1,7 @@
 import json
+import random
 from model import *
-from main import SimpleWebSocket
+
 
 
 class Lobby:
@@ -34,7 +35,7 @@ class Lobby:
         return len(self.players) >= 2  # TODO when quiz model implemented: make this value generic
 
     def send_lobby_state_to_players(self):
-        msg = json.dumps({'type':'lobby',
+        msg = json.dumps({'type': 'lobby',
                           'lobby': [player.get_id() for player in self.players],
                           'nicks': [player.get_nickname() for player in self.players]})
 
@@ -42,7 +43,7 @@ class Lobby:
 
     def open_game(self):
         print('opening game for ' + str(len(self.players)) + ' players')
-        game_id = GamePool.start_game(self.players, self.socket)
+        GamePool.start_game(self.players, self.socket)
         self.close_lobby()
 
     def close_lobby(self):
@@ -176,7 +177,7 @@ class Game:
         if not end_flag:
             next_question = self.questions[self.played_questions].to_json()
             msg = json.dumps({'type': 'question',
-                   'question': next_question})
+                              'question': next_question})
             self.notify_players(msg)
         self.played_questions += 1
 
@@ -202,3 +203,75 @@ class Game:
 
     def notify_players(self, message):
         self.socket.notify_clients(message)
+
+
+class Jackpot:
+    def __init__(self):
+        self.inital_points = 1000
+        self.initial_payout_chance = 10
+        self.amount = self.inital_points
+        self.payout_chance = self.initial_payout_chance
+        self.payout_counter = 0
+        self.is_active = False
+
+    def get_initial_points(self):
+        return self.inital_points
+
+    def get_amount(self):
+        return self.amount
+
+    def set_amount(self, amount):
+        self.amount = amount
+
+    def get_payout_counter(self):
+        return self.payout_counter
+
+    def is_active(self):
+        return self.is_active
+
+    def set_active(self, bool_active):
+        self.is_active = bool_active
+
+    def get_payout_chance(self):
+        return self.payout_chance
+
+    def fill(self):
+        """
+        called after payout, fills jackpot with initial points
+        """
+        self.amount = self.inital_points
+
+    def clear(self):
+        """
+        empties the jackpot
+        """
+        self.is_active = False
+        self.amount = 0
+
+    def payed_out(self):
+        """
+        called after payout, resets payout chance and refills initial inital points
+        """
+        self.clear()
+        self.fill()
+        self.payout_chance = self.initial_payout_chance
+        self.payout_counter += 1
+
+    def increase_payout_chance(self, value):
+        """
+        increase payout chance by value
+        :param value: value to increase payout chance
+        """
+        self.payout_chance += value
+
+    def random_activation(self):
+        """
+        randomly determine the jackpot activation
+        """
+        payout_threshold = 100 - self.payout_chance
+        random_int = random.randint(0, 100) + 1
+        if random_int >= payout_threshold:
+            self.is_active = True
+
+    def add_points(self, points):
+        self.amount += points

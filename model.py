@@ -36,6 +36,7 @@ class Question:
         if self.qid is None:
             store_question(self)
             self.qid = get_question_id(questioning)
+        # TODO put a reference to the quiz obj
 
     def get_id(self):
         return self.qid
@@ -140,6 +141,42 @@ class Player:
         return self.pid != other.get_id()
 
 
+class Quiz:
+    def __init__(self, title=None, length=None, min_participants=None):
+        self.title = title
+        self.length = length
+        self.min_participants = min_participants
+        self.questions = []
+        self.id = get_quiz_id(title)  # TODO check if None, if yes store and re-get just as in player,question,...
+
+    def get_random_questions(self):
+        # for now just use the first |length| questions
+        # TODO implement randomly choosing algorithm with consideration of preffering often wrongly answered Questions
+        # (needs data from saved games to work though)
+        for i in range(1, self.length + 1):  # + 1 because range omits upper bound
+            question = get_question(i)
+            if question is not None and question.get_topic() == self.title:
+                self.questions.append(question)
+
+    def get_id(self):
+        return self.id
+
+    def set_id(self, id):
+        self.id = id
+
+    def get_title(self):
+        return self.title
+
+    def get_length(self):
+        return self.length
+
+    def get_min_participants(self):
+        return self.min_participants
+
+    def get_questions(self):
+        return self.questions
+
+
 def get_player(id, json_path="players.json"):
     with open(json_path) as f:
         data = json.load(f)
@@ -177,6 +214,20 @@ def get_question(id, json_path='questions.json'):
             return None
 
 
+def get_quiz(id, json_path='quizzes.json'):
+    with open(json_path) as f:
+        data = json.load(f)
+        if int(id) > int(data['highest_id']):
+            return None
+        else:
+            for quiz in data['quizzes']:
+                if quiz['id'] == int(id):
+                    instance = Quiz(quiz['title'], quiz['length'], quiz['min_participants'])
+                    instance.set_id(quiz['id'])
+                    return instance
+            return None
+
+
 def store_player(player, json_path='players.json'):
     '''
     stores/adds player to json file, increments highest_id field
@@ -184,7 +235,7 @@ def store_player(player, json_path='players.json'):
     :param json_path: path to json file
     :return: void
     '''
-    with open(json_path,'r') as f:
+    with open(json_path, 'r') as f:
         data = json.load(f)
         new_id = data['highest_id'] + 1
         data['players'].append({'id': new_id,
@@ -227,9 +278,14 @@ def store_question(question, json_path='questions.json'):
                                   'topic': question.get_topic(),
                                   'worth': question.get_worth()})
         data['highest_id'] = new_id
-    with open(json_path,'w') as f:
+    with open(json_path, 'w') as f:
         print('stored Question ID: ' + str(new_id) + ' to data')
         json.dump(data, f)
+
+
+def store_quiz(quiz, json_pat='quizzes.json'):
+    # TODO
+    pass
 
 
 def get_player_id(nickname, json_path='players.json'):
@@ -253,4 +309,13 @@ def get_question_id(questioning, json_path='questions.json'):
         for question in data['questions']:
             if question['questioning'] == questioning:
                 return question['id']
+        return None
+
+
+def get_quiz_id(title, json_path='quizzes.json'):
+    with open(json_path) as f:
+        data = json.load(f)
+        for quiz in data['quizzes']:
+            if quiz['title'] == title:
+                return quiz['id']
         return None
