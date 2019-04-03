@@ -36,7 +36,7 @@ class Question:
         if self.qid is None:
             store_question(self)
             self.qid = get_question_id(questioning)
-        # TODO put a reference to the quiz obj
+        
 
     def get_id(self):
         return self.qid
@@ -64,6 +64,20 @@ class Question:
 
     def get_worth(self):
         return self.worth
+
+    def get_quiz(self):
+        return self.quiz
+
+    def set_quiz(self, quiz):
+        self.quiz = quiz
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.qid == other.get_id()
+        return False
+
+    def __ne__(self, other):
+        return self.qid != other.get_id()
 
     def to_json(self):
         return {'answers': [
@@ -146,17 +160,17 @@ class Quiz:
         self.title = title
         self.length = length
         self.min_participants = min_participants
-        self.questions = []
-        self.id = get_quiz_id(title)  # TODO check if None, if yes store and re-get just as in player,question,...
+        self.id = get_quiz_id(title)
+        if self.id is None:
+            store_quiz(self)
+            self.id = get_quiz_id(title)
+        self.questions = get_questions_of_quiz(self)
 
     def get_random_questions(self):
         # for now just use the first |length| questions
         # TODO implement randomly choosing algorithm with consideration of preffering often wrongly answered Questions
         # (needs data from saved games to work though)
-        for i in range(1, self.length + 1):  # + 1 because range omits upper bound
-            question = get_question(i)
-            if question is not None and question.get_topic() == self.title:
-                self.questions.append(question)
+        return [self.questions[i] for i in range(1, self.length + 1)]
 
     def get_id(self):
         return self.id
@@ -175,6 +189,10 @@ class Quiz:
 
     def get_questions(self):
         return self.questions
+
+    def add_question(self, question):
+        if question not in self.questions:
+            self.questions.append(question)
 
 
 def get_player(id, json_path="players.json"):
@@ -212,6 +230,25 @@ def get_question(id, json_path='questions.json'):
                     instance.set_id(question['id'])
                     return instance
             return None
+
+
+def get_questions_of_quiz(quiz, json_path='questions.json'):
+    question_list = []
+    with open(json_path) as f:
+        data = json.load(f)
+        for question in data['questions']:
+            if question['topic'] == quiz.get_title():
+                answers = []
+                for answer in question['answers']:
+                    answer_instance = Answer(answer['content'], answer['type'])
+                    answer_instance.set_id(answer['id'])
+                    answers.append(answer_instance)
+                instance = Question(question['questioning'], question['topic'], answers,
+                                    question['dynamicDifficulty'], question['staticDifficulty'],
+                                    question['responseTime'], question['worth'])
+                instance.set_id(question['id'])
+                question_list.append(instance)
+    return question_list
 
 
 def get_quiz(id, json_path='quizzes.json'):
@@ -283,9 +320,19 @@ def store_question(question, json_path='questions.json'):
         json.dump(data, f)
 
 
-def store_quiz(quiz, json_pat='quizzes.json'):
-    # TODO
-    pass
+def store_quiz(quiz, json_path='quizzes.json'):
+    with open(json_path) as f:
+        data = json.load(f)
+        new_id = data['highest_id'] + 1
+        data['quizzes'].append({'id': new_id,
+                                'title': quiz.get_title(),
+                                'length': quiz.get_length(),
+                                'min_participants': quiz.get_min_participants()
+                                })
+        data['highest_id'] = new_id
+    with open(json_path, 'w') as f:
+        print('stored Quiz ID: ' + str(new_id) + ' to data')
+        json.dump(data, f)
 
 
 def get_player_id(nickname, json_path='players.json'):

@@ -3,12 +3,12 @@ import random
 from model import *
 
 
-
 class Lobby:
-    def __init__(self, first_player, socket):
+    def __init__(self, quiz, first_player, socket):
         print('Created new Lobby')
         self.players = []
         self.socket = socket
+        self.quiz = quiz
         self.add_player(first_player)
 
     def get_players(self):
@@ -32,7 +32,7 @@ class Lobby:
             self.send_lobby_state_to_players()
 
     def has_required_players(self):
-        return len(self.players) >= 2  # TODO when quiz model implemented: make this value generic
+        return len(self.players) >= self.quiz.get_min_participants()  # TODO when quiz model implemented: make this value generic
 
     def send_lobby_state_to_players(self):
         msg = json.dumps({'type': 'lobby',
@@ -43,7 +43,7 @@ class Lobby:
 
     def open_game(self):
         print('opening game for ' + str(len(self.players)) + ' players')
-        GamePool.start_game(self.players, self.socket)
+        GamePool.start_game(self.quiz, self.players, self.socket)
         self.close_lobby()
 
     def close_lobby(self):
@@ -70,7 +70,8 @@ class LobbyPool:
     @staticmethod
     def join_lobby(player, socket, quiz_id=1):  # TODO update quiz_id when quiz model exists, for now leave this as 1!
         if quiz_id not in LobbyPool.lobbies:
-            lobby = Lobby(player, socket)
+            quiz = get_quiz(quiz_id)
+            lobby = Lobby(quiz, player, socket)
             LobbyPool.lobbies[quiz_id] = lobby
         else:
             LobbyPool.lobbies[quiz_id].add_player(player)
@@ -92,10 +93,10 @@ class GamePool:
     games = {}
 
     @staticmethod
-    def start_game(players, socket):
+    def start_game(quiz, players, socket):
         for id in range(0, 1000):
             if id not in GamePool.games:
-                game = Game(id, players, socket)
+                game = Game(id, quiz, players, socket)
                 GamePool.games[id] = game
                 GamePool.games[id].start()
                 break
@@ -112,9 +113,10 @@ class GamePool:
 
 
 class Game:
-    def __init__(self, id, players, socket):
+    def __init__(self, id, quiz, players, socket):
         self.id = id
         self.players = players
+        self.quiz = quiz
         self.waiting_players = set()
 
         self.played_questions = 0
@@ -124,11 +126,7 @@ class Game:
         self.scoreboard = {}
         for player_id in self.player_ids:
             self.scoreboard[player_id] = 0
-        self.questions = []
-        for i in range(1, 5):
-            question = get_question(i)
-            if question is not None:
-                self.questions.append(question)
+        self.questions = self.quiz.get_random_questions()
 
     def get_id(self):
         return self.id
