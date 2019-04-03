@@ -232,20 +232,49 @@
 <script>
     var pID = -1
     var gameID = -1
+    var progressBar = null;
 
-    function onclickanswer(answerID, questionID){
+    function onclickanswer(btn, questionID){
         var payload = {
             "type": "answered_question",
             "p_id": pID,
             "game_id": gameID,
-            "q_id": -1,
-            "a_id" : answerID
+            "q_id": questionID,
+            "a_id" : parseInt(btn.id) + 1
         };
-        //TODO trigger button disable
-        // Make the request to the WebSocket.
+        //stop the timer
+        clearInterval(progressBar);
+        //evaluate the given answer
+        evalQuestion(btn);
+        //send answer to the server
         sendSocket(payload);
     }
+
+    function evalQuestion(pressedBtn){
+        //first disable all button onclicks
+        var b_answers = document.getElementsByClassName('answer');
+        for (var i=0; i<b_answers.length; i++){
+            b_answers[i].onclick = false;
+        }
+        //correct answer was chosen, make this button green
+        if(parseInt(pressedBtn.id) == 0){
+            pressedBtn.className = "col py-3 px-lg-5 btn btn btn-success answer";
+        }
+        //wrong answer chosen, make pressed button red and button with correct answer green
+        else{
+            pressedBtn.className = "col py-3 px-lg-5 btn btn btn-danger answer";
+            //we cant directly access the buttons div with id=0 because also in lobby there are divs with id's
+            //--> wrong element could be taken, to avoid that loop only over answers
+            for(var i = 0; i < b_answers.length; i++){
+                if(b_answers[i].id == 0){
+                    b_answers[i].className = "col py-3 px-lg-5 btn btn btn-success answer";
+                }
+            }
+        }
+    }
+
     function startLobby(){
+        //hide menu and show lobby
       document.getElementById("menu").style.display = "none"
       document.getElementById("room").style.display = "inline"
 
@@ -257,17 +286,19 @@
       return false;
     }
     function startGame() {
-        //check player...
-        //hide chat
+        //hide lobby, delete chat and show game
         document.getElementById("room").style.display = "none"
+        clearChildren("messages");
         document.getElementById("game").style.display = "inline"
         return false;
     }
     function startScoreboard(){
+        //hide game and show scoreboard
         document.getElementById("game").style.display = "none"
         document.getElementById("scoreboard").style.display = "inline"
     }
     function backToMenu(){
+        //hide scoreboard and show menu
         document.getElementById("scoreboard").style.display = "none"
         document.getElementById("menu").style.display = "inline"
         return false;
@@ -276,32 +307,29 @@
     function move() {
         var elem = document.getElementById("myBar");
         var width = 1;
-        var id = setInterval(frame, 120);
-        var payload = {
-            "type": "question"
-        }
+        progressBar = setInterval(frame, 120);
+
         function frame() {
             if (width == 100) {
-                // Make the request to the WebSocket.
-                sendSocket(payload);
                 elem.style.width = '0%';
-                clearInterval(id);
-                move()
+                clearInterval(progressBar);
             } else {
                 width++;
                 elem.style.width = width + '%';
             }
         }
-        //next question
     }
+
     var username = prompt("What's your name?");
     var ws = new WebSocket("ws://localhost:8888/websocket/username/" + username);
     ws.onmessage = function (evt) {
         console.log(evt.data)
+        //parse the json response
         var messageDict = JSON.parse(evt.data);
-        // Create a div with the format `user: message`.
-        if ('type' in messageDict) {
+        if ('type' in messageDict) { //type always needs to be in the response
             switch (messageDict.type) {
+                //check if ur username is known by the server
+                //TODO auth with password
                 case "login": {
                   if(messageDict.p_id != -1){
                     alert("successfully logged in");
@@ -312,7 +340,7 @@
                   }
                 }
                 break;
-                //do some message
+                //display chat messages
                 case "user_message": {
                     var messageBox = document.createElement("div");
                     messageBox.className = 'd-flex justify-content-start mb-4';
@@ -336,26 +364,13 @@
                 break;
                 //close connect
                 case "close": {
-                    var n_div = document.getElementById("users-id").getElementsByTagName('div');
-                    //var users = messageDict.user.split(',');
-                    for (var i = 0, n = n_div.length; i < n; i = i + 1) {
-                        var s_id = n_div[i].id;
-                        if (!messageDict.user.includes(s_id)) {
-                            document.getElementById(s_id).remove();
-                        }
-                    }
+                    //do nothing for now
                 }
-                //open connection
+                //a player joined the lobby
                 case "lobby": {
                     //remove all old users from the box to avoid duplicates
-                    var users = document.getElementById("contacts");
-                    if(users.hasChildNodes()){
-                        var children = users.childNodes;
-                        for(var i = 0; i < children.length; i++){
-                            users.removeChild(children[i]);
-                        }
-                    }
-
+                    clearChildren("users-id");
+					
                     //put the users
                     for (id in messageDict.lobby) {
                         var userBox = document.createElement("li");
@@ -385,40 +400,39 @@
                     }
                 }
                 break;
+                //enough players in the lobby --> games starts
                 case "game_start":{
                     gameID = messageDict.game_id;
                     startGame();
                 }
                 break;
-                //do a question
+                //play a question
                 case 'question': {
                     document.getElementById('question').innerHTML = messageDict.question.questioning;
                     var answers = messageDict.question.answers;
                     for (answerid in answers ){
                         document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid].content;
                     }
+                    //TODO shuffle order of questions since id=1 is the correct answer
                     var b_answers = document.getElementsByClassName('answer');
                     for (var i=0; i < b_answers.length; i++){
-                        console.log(i + 1 + " " + messageDict.question.id)
-                        b_answers[i].onclick = function(e){ onclickanswer(i + 1, messageDict.question.id) }; //put this as param back in
+                        b_answers[i].onclick = function(e){ onclickanswer(this, messageDict.question.id) };
                         b_answers[i].className = "col py-3 px-lg-5 btn btn-outline-info answer";
                     }
-                    //TODO start timer bar
+
+                    //reset + restart the timer bar
+                    document.getElementById("myBar").style.width = '0%';
+                    move();
+
                 }
                 break;
+                //all questions played --> show scoreboard
                 case "scoreboard": {
 
                     //remove any old scores from previous games
-                    var oldScores = document.getElementById("scores-id");
-                    if(oldScores.hasChildNodes()){
-                        var children = oldScores.childNodes;
-                        for(var i = 0; i < children.length; i++){
-                            oldScores.removeChild(children[i]);
-                        }
-                    }
+                    clearChildren("scores-id");
 
                     //create new div containing playerID : score for each participant
-                    //TODO fix display of score of previous games
                     for(playerID in messageDict.scoreboard){
                         var scoreBox = document.createElement("div");
                         if(playerID == pID){ //my own score
@@ -433,19 +447,9 @@
 
                 }
                 break;
-                //answered question
-                case 'answer_quest': {
-                    var b_answers = document.getElementsByClassName('answer');
-                    for (var i=0; i<b_answers.length; i++){
-                        b_answers[i].onclick = false;
-                        b_answers[i].className = "col py-3 px-lg-5 btn btn btn-secondary answer";
-                    }
-                    document.getElementById(messageDict.id).className = "col py-3 px-lg-5 btn btn btn-primary answer";
-                }
-                break;
             }
         } else {
-            //alert('something getting wrong')
+            alert('"type" key missing in message')
         }
         ;
     };
@@ -456,6 +460,7 @@
         }
         sendSocket(welcome);
     }
+    //send a chat message to the server, will be broadcasted to players
     function sendMessage() {
         var messageInput = document.getElementById("message");
         var message = messageInput.value;
@@ -470,7 +475,16 @@
         messageInput.value = "";
         return false;
     }
-
+    //helper function to clear child nodes
+    function clearChildren(parentID){
+        var parent = document.getElementById(parentID);
+        if(parent){
+            while(parent.firstChild){
+                parent.removeChild(parent.firstChild);
+            }
+        }
+    }
+    //wrapper to send a message to the server via socket
     function sendSocket(payload){
         jsonMessage = JSON.stringify(payload)
         ws.send(jsonMessage);
