@@ -207,13 +207,14 @@
     </div>
     <div class="row justify-content-md-center">
         <div class="col-10 alert alert-success" role="alert"><h2 id="question">Frage</h2></div>
-        <div class="col-10 py-3 px-lg-5 border bg-light">
-            <div class=" row mx-lg-n5">
+        <!-- answerbox, answerrow are no real classes but needed for shuffling, please dont remove-->
+        <div class="col-10 py-3 px-lg-5 border bg-light answerbox">
+            <div class="row mx-lg-n5 answerrow">
                 <div type="button" class="col py-3 px-lg-5 btn btn-outline-info answer" id="0"><h2 id="a1">A1</h2></div>
                 <div type="button" class="col py-3 px-lg-5 btn btn-outline-info answer" id="1"><h2 id="a2">A2</h2></div>
             </div>
 
-            <div class="row mx-lg-n5">
+            <div class="row mx-lg-n5 answerrow">
                 <div type="button" class="col py-3 px-lg-5 btn btn-outline-info answer" id="2"><h2 id="a3">A3</h2></div>
                 <div type="button" class="col py-3 px-lg-5 btn btn-outline-info answer" id="3"><h2 id="a4">A4</h2></div>
             </div>
@@ -230,6 +231,7 @@
     </form>
 </div>
 </main>
+
 <!-- game functions -->
 <script>
     var pID = -1
@@ -415,12 +417,32 @@
                     for (answerid in answers ){
                         document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid].content;
                     }
-                    //TODO shuffle order of questions since id=1 is the correct answer
+
                     var b_answers = document.getElementsByClassName('answer');
                     for (var i=0; i < b_answers.length; i++){
                         b_answers[i].onclick = function(e){ onclickanswer(this, messageDict.question.id) };
                         b_answers[i].className = "col py-3 px-lg-5 btn btn-outline-info answer";
                     }
+
+                    //function to shuffle answers across 2 hierarchy levels
+                    //this solution is pretty dirty though
+                    //any other place except here threw UncaughtReferenceError for $ (dont know why)
+                    $.fn.randomize = function(a,b) {
+                        return this.each(function() {
+                            var $this = $(this);
+                            var elems = $this.children(a).children(b);
+                            var len = $this.find(a).eq(0).find(b).length;
+                            elems.sort(function() {
+                                return (Math.round(Math.random())-0.5); });
+                            $this.detach(a);
+                            for(var i=0; i < elems.length; i++) {
+                      	         $this.find(a).eq(i%len).append(elems[i]);
+                             }
+
+                        });
+                    }
+                    //shuffle answers
+                    $('.answerbox').randomize('.answerrow', '.answer');
 
                     //reset + restart the timer bar
                     document.getElementById("myBar").style.width = '0%';
@@ -486,6 +508,7 @@
             }
         }
     }
+
     //wrapper to send a message to the server via socket
     function sendSocket(payload){
         jsonMessage = JSON.stringify(payload)

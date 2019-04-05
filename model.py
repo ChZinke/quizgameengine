@@ -36,7 +36,7 @@ class Question:
         if self.qid is None:
             store_question(self)
             self.qid = get_question_id(questioning)
-        
+
 
     def get_id(self):
         return self.qid
@@ -170,7 +170,7 @@ class Quiz:
         # for now just use the first |length| questions
         # TODO implement randomly choosing algorithm with consideration of preffering often wrongly answered Questions
         # (needs data from saved games to work though)
-        return [self.questions[i] for i in range(1, self.length + 1)]
+        return [self.questions[i] for i in range(self.length + 1)]
 
     def get_id(self):
         return self.id
