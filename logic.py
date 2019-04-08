@@ -120,7 +120,7 @@ class Game:
         self.waiting_players = set()
 
         self.played_questions = 0
-        self.jackpot = None  # TODO = Jackpot()
+        self.jackpot = Jackpot()
         self.player_ids = [player.get_id() for player in players]
         self.socket = socket
         self.scoreboard = {}
@@ -167,15 +167,27 @@ class Game:
     def get_questions_json(self):
         return [question.to_json() for question in self.questions]
 
+    def get_jackpot(self):
+        return self.jackpot
+
     def start_next_question(self):
         end_flag = False
         if self.played_questions == len(self.questions):
             self.end()
             end_flag = True
+        elif self.played_questions == (len(self.questions) - 1):
+            self.jackpot.set_active(True)
+        else:
+            self.jackpot.random_activation()
+
         if not end_flag:
             next_question = self.questions[self.played_questions].to_json()
             msg = json.dumps({'type': 'question',
-                              'question': next_question})
+                              'question': next_question,
+                              'jackpot': {
+                                            'amount': self.jackpot.get_amount(),
+                                            'is_active': self.jackpot.get_is_active()}
+                              })
             self.notify_players(msg)
         self.played_questions += 1
 
@@ -224,7 +236,7 @@ class Jackpot:
     def get_payout_counter(self):
         return self.payout_counter
 
-    def is_active(self):
+    def get_is_active(self):
         return self.is_active
 
     def set_active(self, bool_active):

@@ -219,6 +219,7 @@
                 <div type="button" class="col py-3 px-lg-5 btn btn-outline-info answer" id="3"><h2 id="a4">A4</h2></div>
             </div>
         </div>
+        <div class="col-10 alert alert-success" role="alert"><h2>Your Score: </h2><h2 id="score">0</h2></div>
     </div>
 </div>
 
@@ -237,32 +238,62 @@
     var pID = -1
     var gameID = -1
     var progressBar = null;
+    var jackpot = null;
 
-    function onclickanswer(btn, questionID){
+    function onclickanswer(btn, question, jackpot, startTime){
+        //measure elapsed time in seconds, startTime is when question message arrived
+        var endTime = new Date();
+        var timeDiff = endTime - startTime;
+        var timeInSeconds = timeDiff / 1000;
+
+        //TODO add the information from question evaluation to the payload
         var payload = {
             "type": "answered_question",
             "p_id": pID,
             "game_id": gameID,
-            "q_id": questionID,
+            "q_id": question.id,
             "a_id" : parseInt(btn.id) + 1
         };
         //stop the timer
         clearInterval(progressBar);
         //evaluate the given answer
-        evalQuestion(btn);
+        var evalPayload = evalQuestion(btn, question, jackpot, timeInSeconds);
+        payload['played_question'] = evalPayload;
         //send answer to the server
         sendSocket(payload);
     }
 
-    function evalQuestion(pressedBtn){
+    function evalQuestion(pressedBtn, question, jackpot, time){
         //first disable all button onclicks
         var b_answers = document.getElementsByClassName('answer');
         for (var i=0; i<b_answers.length; i++){
             b_answers[i].onclick = false;
         }
+
+        var payload = {
+            'speed': time,
+            'is_jackpot': jackpot.is_active
+        };
+
         //correct answer was chosen, make this button green
         if(parseInt(pressedBtn.id) == 0){
             pressedBtn.className = "col py-3 px-lg-5 btn btn btn-success answer";
+            payload['is_correct'] = true;
+            //TODO check for jackpot and modify accordingly
+            if(jackpot.is_active == true){
+                var score = parseInt(document.getElementById("score").innerHTML);
+                var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
+                score += currentScore;
+                document.getElementById("score").innerHTML = score;
+                payload['score'] = currentScore;
+            }
+            else{
+                var score = parseInt(document.getElementById("score").innerHTML);
+                var currentScore = parseInt(question.worth);
+                score += currentScore;
+                document.getElementById("score").innerHTML = score;
+                payload['score'] = currentScore;
+            }
         }
         //wrong answer chosen, make pressed button red and button with correct answer green
         else{
@@ -274,7 +305,32 @@
                     b_answers[i].className = "col py-3 px-lg-5 btn btn btn-success answer";
                 }
             }
+            payload['is_correct'] = false;
+            payload['score'] = 0;
         }
+        return payload;
+    }
+
+    function getAmountOfJackpot(time, jackpot){
+        if(time < 5){
+            return jackpot.amount;
+        }
+        else if(time >= 5 && time < 10){
+            return jackpot.amount * 0.9;
+        }
+        else if(time >= 10 && time < 15){
+            return jackpot.amount * 0.7;
+        }
+        else if(time >= 15 && time <20){
+            return jackpot.amount * 0.5;
+        }
+        else if(time >= 20 && time < 25){
+            return jackpot.amount * 0.3;
+        }
+        else if(time >= 25 && time < 30){
+            return jackpot.amount * 0.1;
+        }
+        else return 0;
     }
 
     function startLobby(){
@@ -418,9 +474,11 @@
                         document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid].content;
                     }
 
+                    var startTime = new Date();
+
                     var b_answers = document.getElementsByClassName('answer');
                     for (var i=0; i < b_answers.length; i++){
-                        b_answers[i].onclick = function(e){ onclickanswer(this, messageDict.question.id) };
+                        b_answers[i].onclick = function(e){ onclickanswer(this, messageDict.question, messageDict.jackpot, startTime) };
                         b_answers[i].className = "col py-3 px-lg-5 btn btn-outline-info answer";
                     }
 

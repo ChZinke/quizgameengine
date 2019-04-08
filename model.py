@@ -80,6 +80,9 @@ class Question:
         return self.qid != other.get_id()
 
     def to_json(self):
+        """
+        converts question obj to dict, but does not yet dump it to json string because socket dumps it later itself
+        """
         return {'answers': [
                             {'id': 1,
                              'content': self.get_answers()[0].get_content(),
