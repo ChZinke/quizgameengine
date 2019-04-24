@@ -197,6 +197,12 @@ class Quiz:
         if question not in self.questions:
             self.questions.append(question)
 
+    def to_json(self):
+        return {'title': self.title,
+                'length': self.length,
+                'min_participants': self.min_participants,
+                'id': self.id}
+
 
 def get_player(id, json_path="players.json"):
     with open(json_path) as f:
@@ -267,6 +273,15 @@ def get_quiz(id, json_path='quizzes.json'):
                     return instance
             return None
 
+def get_all_quizzes(json_path='quizzes.json'):
+    quizzes = []
+    with open(json_path) as f:
+        data = json.load(f)
+        for quiz in data['quizzes']:
+            instance = Quiz(quiz['title'], quiz['length'], quiz['min_participants'])
+            instance.set_id(quiz['id'])
+            quizzes.append(instance)
+        return quizzes
 
 def store_player(player, json_path='players.json'):
     '''

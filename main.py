@@ -1,6 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
+import json
 from logic import *
 from model import *
 
@@ -8,6 +9,17 @@ from model import *
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
+
+
+class QuizHandler(tornado.web.RequestHandler):
+    def get(self):
+        id = self.get_argument('id', None)
+        if id is None:
+            quizzes = get_all_quizzes()
+            self.write(json.dumps([quiz.to_json() for quiz in quizzes]))
+        else:
+            quiz = get_quiz(id)
+            self.write(json.dumps(quiz.to_json()))
 
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
@@ -70,6 +82,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
+        (r"/quizzes", QuizHandler),
         (r"/websocket", SimpleWebSocket),
         (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": "./css/"},),
         (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": "./img/"},),
