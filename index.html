@@ -11,7 +11,13 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
         integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+            crossorigin="anonymous"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
     <style>
 
     </style>
@@ -239,6 +245,48 @@
     var gameID = -1
     var progressBar = null;
     var jackpot = null;
+    var baseURI = "localhost:8888"
+
+    window.onload = function(){
+        console.log("firing request");
+        getQuizzes();
+    }
+
+    function getQuizzes(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'localhost:8888/quizzes', true);
+        xhr.withCredentials = true;
+        xhr.onreadystatechange = function(){
+            console.log(xhr.readyState);
+            console.log(xhr.responseText);
+            console.log(xhr.statusText);
+            console.log(xhr.status);
+        }
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "localhost");
+        xhr.send(null);
+        /*
+        var req = $.ajax({
+            url: "localhost:8888/quizzes",
+            method: "GET",
+            contentType: "application/json",
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(response){
+                        console.log(response);
+                    },
+            error: function(xhr, textStatus, error){
+                        console.log(xhr.status);
+                        console.log(textStatus);
+                        console.log(error);
+                    }
+        });
+        */
+
+    }
 
     function onclickanswer(btn, question, jackpot, startTime){
         //measure elapsed time in seconds, startTime is when question message arrived
@@ -337,6 +385,7 @@
         //hide menu and show lobby
       document.getElementById("menu").style.display = "none"
       document.getElementById("room").style.display = "inline"
+      getQuizzes();
 
       var payload = {
         "type": "join_lobby",
@@ -574,13 +623,6 @@
         console.log("sent: " + jsonMessage);
     }
 </script>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
-        crossorigin="anonymous"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
-        crossorigin="anonymous"></script>
+
 </body>
 </html>
