@@ -61,9 +61,8 @@
             <div class="container px-lg-5" style="display:inline">
                 <div style="padding-top: 20px;">
                     <form onsubmit=" return startLobby()">
-                        <select class="custom-select custom-select-lg mb-3">
-                            <option selected>Spiele</option>
-                            <option value="1">Filme</option>
+                        <select id="quiz_select" class="custom-select custom-select-lg mb-3">
+                            <option value="1" selected>Filme</option>
                             <option value="2">Two</option>
                             <option value="3">Three</option>
                         </select>
@@ -245,38 +244,32 @@
     var gameID = -1
     var progressBar = null;
     var jackpot = null;
-    var baseURI = "localhost:8888"
+    var baseURI = "localhost:8888";
+    var quizzes = null;
 
     window.onload = function(){
-        console.log("firing request");
         getQuizzes();
     }
 
     function getQuizzes(){
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'localhost:8888/quizzes', true);
-        xhr.withCredentials = true;
-        xhr.onreadystatechange = function(){
-            console.log(xhr.readyState);
-            console.log(xhr.responseText);
-            console.log(xhr.statusText);
-            console.log(xhr.status);
-        }
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xhr.setRequestHeader("Access-Control-Allow-Origin", "localhost");
-        xhr.send(null);
-        /*
+
         var req = $.ajax({
-            url: "localhost:8888/quizzes",
+            url: "/quizzes",
             method: "GET",
             contentType: "application/json",
-            crossDomain: true,
-            xhrFields: {
-                withCredentials: true
-            },
+            dataType: "json",
             success: function(response){
                         console.log(response);
+                        quizzes = response;
+                        clearChildren("quiz_select");
+                        var selectBox = document.getElementById("quiz_select");
+                        quizzes.forEach(function(quiz){
+                            var option = document.createElement("option");
+                            console.log(quiz.title + " " + quiz.id);
+                            option.text = quiz.title;
+                            option.value = quiz.id;
+                            selectBox.appendChild(option);
+                        });
                     },
             error: function(xhr, textStatus, error){
                         console.log(xhr.status);
@@ -284,7 +277,7 @@
                         console.log(error);
                     }
         });
-        */
+
 
     }
 
