@@ -246,6 +246,7 @@
     var jackpot = null;
     var baseURI = "localhost:8888";
     var quizzes = null;
+    var ws = null;
 
     window.onload = function(){
         getQuizzes();
@@ -378,15 +379,24 @@
         //hide menu and show lobby
       document.getElementById("menu").style.display = "none"
       document.getElementById("room").style.display = "inline"
-      getQuizzes();
 
-      var payload = {
-        "type": "join_lobby",
-        "p_id": pID
+      //get the selected quiz from the dropdown list
+      var selectBox = document.getElementById("quiz_select");
+      var quizID = selectBox.options[selectBox.selectedIndex].value;
+      ws = new WebSocket("ws://localhost:8888/websocket/p_id/" + pID);
+      ws.onmessage = messageHandle;
+      //need to wrap this in onopen here to wait for the connection to actually be established, otherwise it might not send the message
+      ws.onopen = function(e){
+            var payload = {
+                "type": "join_lobby",
+                "p_id": pID,
+                "q_id": quizID
+            }
+            sendSocket(payload);
       }
-      sendSocket(payload);
       return false;
     }
+
     function startGame() {
         //hide lobby, delete chat and show game
         document.getElementById("room").style.display = "none"
@@ -398,11 +408,15 @@
         //hide game and show scoreboard
         document.getElementById("game").style.display = "none"
         document.getElementById("scoreboard").style.display = "inline"
+
+        //close the websocket
+        ws.close();
     }
     function backToMenu(){
         //hide scoreboard and show menu
         document.getElementById("scoreboard").style.display = "none"
         document.getElementById("menu").style.display = "inline"
+
         return false;
     }
 
@@ -423,8 +437,25 @@
     }
 
     var username = prompt("What's your name?");
-    var ws = new WebSocket("ws://localhost:8888/websocket/username/" + username);
-    ws.onmessage = function (evt) {
+    $.ajax({
+        url: "/login",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({"username": username}),
+        dataType: "json",
+        success: function(response){
+            if (response.p_id != -1){
+                pID = response.p_id;
+                alert("Successfully logged in");
+            }
+            else{
+                alert("user not known");
+            }
+        }
+    })
+
+    //websocket message handles
+    function messageHandle(evt) {
         console.log(evt.data)
         //parse the json response
         var messageDict = JSON.parse(evt.data);
@@ -577,13 +608,7 @@
         }
         ;
     };
-    ws.onopen = function (e) {
-        var welcome = {
-            "type": 'login',
-            "user": username
-        }
-        sendSocket(welcome);
-    }
+
     //send a chat message to the server, will be broadcasted to players
     function sendMessage() {
         var messageInput = document.getElementById("message");

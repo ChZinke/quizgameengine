@@ -40,12 +40,24 @@ class QuizHandler(BaseHandler):
             self.write(json.dumps(quiz.to_json()))
 
 
+class LoginHandler(tornado.web.RequestHandler):
+    def post(self):
+        data = json.loads(self.request.body)
+        username = data['username']
+        player_id = get_player_id(username)
+        if player_id:
+            self.write({'p_id': player_id})
+        else:
+            self.write({'p_id': -1})
+
+
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     connections = set()
     pid = ''
 
-    def open(self, username):
+    def open(self, p_id):
         self.connections.add(self)
+        self.pid = p_id
 
     def on_message(self, message):
         msg = json.loads(message)
@@ -62,9 +74,10 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 self.notify_clients(json.dumps(msg))
             elif msg['type'] == 'join_lobby':
                 player_id = msg['p_id']
+                quiz_id = msg['q_id']
                 player = get_player(player_id)
                 # TODO when quiz model implemented: quiz_id needs to be supplied
-                LobbyPool.join_lobby(player, self)  # TODO when quiz model implemented: quiz_id as 3rd parameter
+                LobbyPool.join_lobby(player, self, quiz_id)  # TODO when quiz model implemented: quiz_id as 3rd parameter
             elif msg['type'] == 'leave_lobby':
                 player_id = msg['p_id']
                 player = get_player(player_id)
@@ -94,17 +107,18 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         self.connections.remove(self)
-        print('connection closed')
+        print('connection to client ' + str(self.pid) + " closed by client")
 
 
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/quizzes", QuizHandler),
+        (r"/login", LoginHandler),
         (r"/websocket", SimpleWebSocket),
         (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": "./css/"},),
         (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": "./img/"},),
-        (r"/websocket/username/(.*)", SimpleWebSocket)
+        (r"/websocket/p_id/(.*)", SimpleWebSocket)
     ])
 
 
