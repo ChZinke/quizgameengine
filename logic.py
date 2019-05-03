@@ -182,6 +182,9 @@ class Game:
 
         if not end_flag:
             next_question = self.questions[self.played_questions].to_json()
+            for answer in next_question['answers']:
+                if not answer['type']:  # only assign items to wrong answers
+                    answer['assigned_effect'] = Item().get_effect()
             msg = json.dumps({'type': 'question',
                               'question': next_question,
                               'jackpot': {
@@ -285,3 +288,12 @@ class Jackpot:
 
     def add_points(self, points):
         self.amount += points
+
+
+class Item:
+    def __init__(self):
+        self.possible_effects = ['scoreX2', 'scoreX5']  # further possibilites: jackpot next question, freeze other players,
+        self.effect = random.choice(self.possible_effects)
+
+    def get_effect(self):
+        return self.effect

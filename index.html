@@ -420,7 +420,9 @@
         return false;
     }
 
-    function move() {
+    function move(maxTime) {
+        //TODO call setInterval only every second and add a fraction to width else than +1
+        //TODO get the maxTime somehow into frame to have the bar reach 100% if maxTime is reached
         var elem = document.getElementById("myBar");
         var width = 1;
         progressBar = setInterval(frame, 120);
@@ -436,6 +438,7 @@
         }
     }
 
+    //improvised login, to be implemented correctly at last because logging in with username + password everytime is annoying
     var username = prompt("What's your name?");
     $.ajax({
         url: "/login",
@@ -450,9 +453,11 @@
             }
             else{
                 alert("user not known");
+                //reload the page
+                window.location.reload();
             }
         }
-    })
+    });
 
     //websocket message handles
     function messageHandle(evt) {
@@ -544,7 +549,14 @@
                     document.getElementById('question').innerHTML = messageDict.question.questioning;
                     var answers = messageDict.question.answers;
                     for (answerid in answers ){
-                        document.getElementById("a"+(parseFloat(answerid)+1)).innerHTML = answers[answerid].content;
+                        var answerElement = document.getElementById("a"+(parseFloat(answerid)+1))
+                        answerElement.innerHTML = answers[answerid].content;
+                        if (answers[answerid].hasOwnProperty("assigned_effect")){
+                            var effectElement = document.createElement('i');
+                            effectElement.className = "fas fa-star ml-5";
+                            effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effect));
+                            answerElement.appendChild(effectElement);
+                        }
                     }
 
                     var startTime = new Date();
@@ -577,7 +589,7 @@
 
                     //reset + restart the timer bar
                     document.getElementById("myBar").style.width = '0%';
-                    move();
+                    move(messageDict.question.responseTime);
 
                 }
                 break;
