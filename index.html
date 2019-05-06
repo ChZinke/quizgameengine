@@ -225,6 +225,9 @@
             </div>
         </div>
         <div class="col-10 alert alert-success" role="alert"><h2>Your Score: </h2><h2 id="score">0</h2></div>
+        <div id="items" class="col-10 align-bottom">
+
+        </div>
     </div>
 </div>
 
@@ -240,16 +243,23 @@
 
 <!-- game functions -->
 <script>
-    var pID = -1
-    var gameID = -1
+    var pID = -1;
+    var gameID = -1;
     var progressBar = null;
     var jackpot = null;
     var baseURI = "localhost:8888";
     var quizzes = null;
     var ws = null;
+    var items = {}; //will hold the available items in form: {"item_name":"quantity"}, e.g. { "scoreX2": 1 }
+    var activeItem = null;
 
     window.onload = function(){
+        getMainPageData();
+    }
+
+    function getMainPageData(){
         getQuizzes();
+        //later also: get all open lobbies, ...
     }
 
     function getQuizzes(){
@@ -260,13 +270,11 @@
             contentType: "application/json",
             dataType: "json",
             success: function(response){
-                        console.log(response);
                         quizzes = response;
                         clearChildren("quiz_select");
                         var selectBox = document.getElementById("quiz_select");
                         quizzes.forEach(function(quiz){
                             var option = document.createElement("option");
-                            console.log(quiz.title + " " + quiz.id);
                             option.text = quiz.title;
                             option.value = quiz.id;
                             selectBox.appendChild(option);
@@ -288,7 +296,6 @@
         var timeDiff = endTime - startTime;
         var timeInSeconds = timeDiff / 1000;
 
-        //TODO add the information from question evaluation to the payload
         var payload = {
             "type": "answered_question",
             "p_id": pID,
@@ -321,10 +328,25 @@
         if(parseInt(pressedBtn.id) == 0){
             pressedBtn.className = "col py-3 px-lg-5 btn btn btn-success answer";
             payload['is_correct'] = true;
-            //TODO check for jackpot and modify accordingly
+
+            //TODO put score computation in separate function
             if(jackpot.is_active == true){
                 var score = parseInt(document.getElementById("score").innerHTML);
                 var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
+                if(activeItem){
+                    switch(activeItem){
+                        case "scoreX2": {
+                            currentScore *= 2;
+                            console.log("score X 2")
+                        }
+                        break;
+                        case "scoreX5": {
+                            currentScore *= 5;
+                            console.log("score X 5");
+                        }
+                        break;
+                    }
+                }
                 score += currentScore;
                 document.getElementById("score").innerHTML = score;
                 payload['score'] = currentScore;
@@ -332,6 +354,20 @@
             else{
                 var score = parseInt(document.getElementById("score").innerHTML);
                 var currentScore = parseInt(question.worth);
+                if(activeItem){
+                    switch(activeItem){
+                        case "scoreX2": {
+                            currentScore *= 2;
+                            console.log("score X 2");
+                        }
+                        break;
+                        case "scoreX5": {
+                            currentScore *= 5;
+                            console.log("score X 5");
+                        }
+                        break;
+                    }
+                }
                 score += currentScore;
                 document.getElementById("score").innerHTML = score;
                 payload['score'] = currentScore;
@@ -350,7 +386,67 @@
             payload['is_correct'] = false;
             payload['score'] = 0;
         }
+
+        //rest the active item, so that in the next round another item can potentially be activated
+        activeItem = null;
+
+        //simply remove the old elements since all will be reset further down
+        clearChildren("items");
+
+        //add item to the collection if the button had one assigned
+        var item = pressedBtn.getElementsByClassName("item")[0];
+        if(item){
+            var itemName = item.textContent;
+            if (items[itemName]){
+                items[itemName] += 1;
+            }
+            else{
+                items[itemName] = 1;
+            }
+        }
+        //append a div for every item, this div will hold two p's for text and quantity
+        //TODO for now they will be reset every time, maybe only reset them if there actually was an item assigned to the clicked button (not too important but good for performance)
+        var itemBox = document.getElementById("items");
+        for (var item in items){
+            var itemDiv = document.createElement("div");
+            itemDiv.id = item;
+            var itemBtn = document.createElement("button");
+            itemBtn.className = "btn btn-outline-info";
+            var itemText = document.createElement("p");
+            itemText.className = "item-text";
+            itemText.appendChild(document.createTextNode(item));
+            var itemQuantity = document.createElement("p");
+            itemQuantity.className = "item-quantity";
+            itemQuantity.appendChild(document.createTextNode(items[item]));
+            itemBtn.appendChild(itemText);
+            itemBtn.appendChild(itemQuantity);
+            itemBtn.onclick = function(e){ onclickitem(this);};
+            itemDiv.appendChild(itemBtn);
+            itemBox.appendChild(itemDiv);
+
+        }
+
         return payload;
+    }
+
+    //sets the active item if there was no other item previously activated since u can only activate one item per question
+    //TODO make the button "look" clicked (enabled attribute?!)
+    //TODO maybe move the lowering of the quantity to evaluation because if it is instantly adjusted (as it is now) it might cause confusion
+    function onclickitem(button){
+        if(!activeItem){
+            var activeItemQuantity = button.getElementsByClassName("item-quantity")[0].textContent;
+            if(parseInt(activeItemQuantity) > 0){ //only if we have enough quantity of the item
+                activeItemText = button.getElementsByClassName("item-text")[0].textContent;
+
+                //set the item as active
+                activeItem = activeItemText;
+
+                //lower the quantity and adjust it in the
+                //TODO if quantity is now 0 then remove the button
+                items[activeItemText] -= 1;
+                button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
+            }
+        }
     }
 
     function getAmountOfJackpot(time, jackpot){
@@ -553,7 +649,7 @@
                         answerElement.innerHTML = answers[answerid].content;
                         if (answers[answerid].hasOwnProperty("assigned_effect")){
                             var effectElement = document.createElement('i');
-                            effectElement.className = "fas fa-star ml-5";
+                            effectElement.className = "fas fa-star ml-5 item";
                             effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effect));
                             answerElement.appendChild(effectElement);
                         }

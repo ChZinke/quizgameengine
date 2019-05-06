@@ -182,9 +182,10 @@ class Game:
 
         if not end_flag:
             next_question = self.questions[self.played_questions].to_json()
-            for answer in next_question['answers']:
-                if not answer['type']:  # only assign items to wrong answers
-                    answer['assigned_effect'] = Item().get_effect()
+            # assign an item to a random wrong answer
+            rand_index = random.randint(1, len(next_question['answers']) - 1)
+            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect()
+
             msg = json.dumps({'type': 'question',
                               'question': next_question,
                               'jackpot': {

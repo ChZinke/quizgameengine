@@ -6,30 +6,12 @@ from logic import *
 from model import *
 
 
-class BaseHandler(tornado.web.RequestHandler):
-    """
-    handle CORS requests, inherit Handlers from this handler to enable CORS
-    """
-
-    def set_default_headers(self):
-
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with,access-control-allow-origin,authorization,content-type")
-        self.set_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        self.set_header('Access-Control-Allow-Credentials', 'true')
-
-    def options(self):
-        # no body
-        self.set_status(204)
-        self.finish()
-
-
-class MainHandler(BaseHandler):
+class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
 
 
-class QuizHandler(BaseHandler):
+class QuizHandler(tornado.web.RequestHandler):
     def get(self):
         id = self.get_argument('id', None)
         if id is None:
