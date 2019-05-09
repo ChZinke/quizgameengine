@@ -24,7 +24,7 @@ class QuizHandler(tornado.web.RequestHandler):
 
 class LoginHandler(tornado.web.RequestHandler):
     def post(self):
-        data = json.loads(self.request.body)
+        data = json.loads(self.request.body.decode("utf-8"))
         username = data['username']
         player_id = get_player_id(username)
         if player_id:

@@ -2,4 +2,21 @@
 - questions direkt durch lobbypool -> lobby -> game durchgeben, wenn model für quiz implementiert ist darüber; im moment funktion in game holt immer die gleichen fragen
 - quiz objekte in game/lobby einbauen
 - items an falsche frage anhängen --> man weiß dass die Frage falsch ist, hat dadurch Chance 1:3 statt 1:4 richtig zu antworten
-- items TODO: div mit gesammelten items + aktivierung machen
+- scoreboard künftig immer anzeigen?
+- jackpot nur noch explizit als item
+- mehrere items pro frage einsetzbar
+- badgesystem
+
+- item gewichtung: impact, frequenz
+
+mehr items:
+    - tintenfisch mario kart / wortreihenfolge shufflen
+    - score der anderen / 2
+    - items zum blockieren von effekten
+    - falsche antwort wegsprengen
+    - publikumsjoker mit generierter statistik
+    - gegnern mehr antworten geben
+    - gegner antworten im bildschirm rumfliegen lassen
+    - scoreboard ausschalten
+    - duell modus/ team modus
+    - punkte trotz falscher antwort bekommen
