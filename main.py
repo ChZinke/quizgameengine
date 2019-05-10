@@ -22,6 +22,15 @@ class QuizHandler(tornado.web.RequestHandler):
             self.write(json.dumps(quiz.to_json()))
 
 
+class ItemQuantityHandler(tornado.web.RequestHandler):
+    def post(self):
+        data = json.loads(self.request.body.decode("utf-8"))
+        p_id = data['p_id']
+        item = data['item']
+        bool_activate = ItemTable.check_and_activate_item(item, p_id)
+        self.write(json.dumps({'activate': bool_activate}))
+
+
 class LoginHandler(tornado.web.RequestHandler):
     def post(self):
         data = json.loads(self.request.body.decode("utf-8"))
@@ -77,6 +86,10 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                     if msg['played_question']['is_correct'] == True and msg['played_question']['is_jackpot'] == True:
                         GamePool.get_game(game_id).get_jackpot().payed_out()
                     # TODO when PlayedQuestion Model exists: check if keys for pq exists, generate pq, add pq tp game
+                    if 'acquired_item' in msg['played_question']:
+                        item = msg['played_question']['acquired_item']
+                        ItemTable.add_item(item, player_id)
+                        print(ItemTable.player_items)
             else:
                 print('Could not resolve "type" key: ' + msg['type'])
 
@@ -97,6 +110,7 @@ def make_app():
         (r"/", MainHandler),
         (r"/quizzes", QuizHandler),
         (r"/login", LoginHandler),
+        (r"/checkItemQuantity", ItemQuantityHandler),
         (r"/websocket", SimpleWebSocket),
         (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": "./css/"},),
         (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": "./img/"},),

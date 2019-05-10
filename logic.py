@@ -298,3 +298,39 @@ class Item:
 
     def get_effect(self):
         return self.effect
+
+
+class ItemTable:
+    player_items = {}  # {item:{p_id1:quantity1,p_id2:quantity2,...},...}
+
+    @staticmethod
+    def add_item(item, p_id):
+        if item not in ItemTable.player_items:
+            ItemTable.player_items[item] = {}
+            ItemTable.player_items[item][p_id] = 1
+        else:
+            if p_id not in ItemTable.player_items[item]:
+                ItemTable.player_items[item][p_id] = 1
+            else:
+                ItemTable.player_items[item][p_id] += 1
+
+    @staticmethod
+    def check_and_activate_item(item, p_id):
+        if item not in ItemTable.player_items:
+            return False
+        else:
+            if p_id not in ItemTable.player_items[item]:
+                return False
+            else:
+                if ItemTable.player_items[item][p_id] > 0:
+                    ItemTable.player_items[item][p_id] -= 1
+                    return True
+
+    @staticmethod
+    def clean():
+        for element in ItemTable.player_items:
+            for k, v in ItemTable.player_items[element].items():
+                if v <= 0:
+                    del ItemTable.player_items[element][k]
+            if not element:
+                del ItemTable.player_items[element]

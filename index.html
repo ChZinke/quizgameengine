@@ -251,7 +251,7 @@
     var quizzes = null;
     var ws = null;
     var items = {}; //will hold the available items in form: {"item_name":"quantity"}, e.g. { "scoreX2": 1 }
-    var activeItem = null;
+    var activeScoreItem = null; //only one score multiplicator allowed per question (i.e. 2x and x5 not combineable)
 
     window.onload = function(){
         getMainPageData();
@@ -333,8 +333,8 @@
             if(jackpot.is_active == true){
                 var score = parseInt(document.getElementById("score").innerHTML);
                 var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
-                if(activeItem){
-                    switch(activeItem){
+                if(activeScoreItem){
+                    switch(activeScoreItem){
                         case "scoreX2": {
                             currentScore *= 2;
                             console.log("score X 2")
@@ -354,8 +354,8 @@
             else{
                 var score = parseInt(document.getElementById("score").innerHTML);
                 var currentScore = parseInt(question.worth);
-                if(activeItem){
-                    switch(activeItem){
+                if(activeScoreItem){
+                    switch(activeScoreItem){
                         case "scoreX2": {
                             currentScore *= 2;
                             console.log("score X 2");
@@ -387,13 +387,14 @@
             payload['score'] = 0;
         }
 
-        //rest the active item, so that in the next round another item can potentially be activated
-        activeItem = null;
+        //reset the active score item, so that in the next round another item can potentially be activated
+        activeScoreItem = null;
 
         //simply remove the old elements since all will be reset further down
         clearChildren("items");
 
         //add item to the collection if the button had one assigned
+        //TODO send msg to server that item has been aquired by player
         var item = pressedBtn.getElementsByClassName("item")[0];
         if(item){
             var itemName = item.textContent;
@@ -403,6 +404,8 @@
             else{
                 items[itemName] = 1;
             }
+            //append message part to payload that item has been acquired
+            payload['acquired_item'] = itemName;
         }
         //append a div for every item, this div will hold two p's for text and quantity
         //TODO for now they will be reset every time, maybe only reset them if there actually was an item assigned to the clicked button (not too important but good for performance)
@@ -429,11 +432,34 @@
         return payload;
     }
 
-    //sets the active item if there was no other item previously activated since u can only activate one item per question
+    //activates the item, note that only one score multiplicator is allowed per round
     //TODO make the button "look" clicked (enabled attribute?!)
     //TODO maybe move the lowering of the quantity to evaluation because if it is instantly adjusted (as it is now) it might cause confusion
     function onclickitem(button){
-        if(!activeItem){
+        var activeItemQuantity = parseInt(button.getElementsByClassName("item-quantity")[0].textContent);
+        var activeItemText = button.getElementsByClassName("item-text")[0].textContent;
+
+        if(["scoreX2", "scoreX5"].includes(activeItemText)){ //activated a score multiplier, check if there is another one active
+            if(!activeScoreItem){
+                if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
+                    activeScoreItem = activeItemText;
+                    items[activeItemText] -= 1;
+                    button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
+                }
+            }
+        }
+        else{ //item is no score multiplier, so we can always activate it
+            if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
+
+                //TODO send msg to server that item has been activated (because effects need potential broadcast)
+
+                items[activeItemText] -= 1;
+                button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
+            }
+        }
+
+        /*
+        if(!activeScoreItem){
             var activeItemQuantity = button.getElementsByClassName("item-quantity")[0].textContent;
             if(parseInt(activeItemQuantity) > 0){ //only if we have enough quantity of the item
                 activeItemText = button.getElementsByClassName("item-text")[0].textContent;
@@ -447,6 +473,7 @@
                 button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
             }
         }
+        */
     }
 
     function getAmountOfJackpot(time, jackpot){
@@ -716,6 +743,33 @@
         }
         ;
     };
+
+    function checkItemQuantity(item){
+        var payload = {
+            'p_id': pID,
+            'item': item
+        };
+        //make a synchronous ajax call to immediatly wait for the response
+        return $.ajax({
+            url: "/checkItemQuantity",
+            method: "POST",
+            contentType: "application/json",
+            async: false,
+            data: JSON.stringify(payload),
+            dataType: "json",
+            success: function(response){
+                if(response.activate == true){
+                    console.log("item activation: " + item + " granted by server")
+                    return true;
+                }
+                else return false;
+            },
+            error: function(response){
+                return false;
+            }
+        });
+
+    }
 
     //send a chat message to the server, will be broadcasted to players
     function sendMessage() {
