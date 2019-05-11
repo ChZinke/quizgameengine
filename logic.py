@@ -124,6 +124,7 @@ class Game:
         self.player_ids = [player.get_id() for player in players]
         self.socket = socket
         self.scoreboard = {}
+        self.item_table = ItemTable()
         for player_id in self.player_ids:
             self.scoreboard[player_id] = 0
         self.questions = self.quiz.get_random_questions()
@@ -133,6 +134,9 @@ class Game:
 
     def get_players(self):
         return self.players
+
+    def get_item_table(self):
+        return self.item_table
 
     def get_waiting_players(self):
         return self.waiting_players
@@ -190,7 +194,8 @@ class Game:
                               'question': next_question,
                               'jackpot': {
                                             'amount': self.jackpot.get_amount(),
-                                            'is_active': self.jackpot.get_is_active()}
+                                            'is_active': self.jackpot.get_is_active()},
+                              'scoreboard': self.scoreboard
                               })
             self.notify_players(msg)
         self.played_questions += 1
@@ -301,36 +306,37 @@ class Item:
 
 
 class ItemTable:
-    player_items = {}  # {item:{p_id1:quantity1,p_id2:quantity2,...},...}
+    def __init__(self):
+        self.player_items = {}  # {item:{p_id1:quantity1,p_id2:quantity2,...},...}
 
-    @staticmethod
-    def add_item(item, p_id):
-        if item not in ItemTable.player_items:
-            ItemTable.player_items[item] = {}
-            ItemTable.player_items[item][p_id] = 1
+    def get_player_items(self):
+        return self.player_items
+
+    def add_item(self, item, p_id):
+        if item not in self.player_items:
+            self.player_items[item] = {}
+            self.player_items[item][p_id] = 1
         else:
-            if p_id not in ItemTable.player_items[item]:
-                ItemTable.player_items[item][p_id] = 1
+            if p_id not in self.player_items[item]:
+                self.player_items[item][p_id] = 1
             else:
-                ItemTable.player_items[item][p_id] += 1
+                self.player_items[item][p_id] += 1
 
-    @staticmethod
-    def check_and_activate_item(item, p_id):
-        if item not in ItemTable.player_items:
+    def check_and_activate_item(self, item, p_id):
+        if item not in self.player_items:
             return False
         else:
-            if p_id not in ItemTable.player_items[item]:
+            if p_id not in self.player_items[item]:
                 return False
             else:
-                if ItemTable.player_items[item][p_id] > 0:
-                    ItemTable.player_items[item][p_id] -= 1
+                if self.player_items[item][p_id] > 0:
+                    self.player_items[item][p_id] -= 1
                     return True
 
-    @staticmethod
-    def clean():
-        for element in ItemTable.player_items:
-            for k, v in ItemTable.player_items[element].items():
+    def clean(self):
+        for element in self.player_items:
+            for k, v in self.player_items[element].items():
                 if v <= 0:
-                    del ItemTable.player_items[element][k]
+                    del self.player_items[element][k]
             if not element:
-                del ItemTable.player_items[element]
+                del self.player_items[element]

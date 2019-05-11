@@ -228,6 +228,11 @@
         <div id="items" class="col-10 align-bottom">
 
         </div>
+        <div id="ingame_scoreboard" class="container">
+            <div class="col-8 alert alert-success" role="alert" id="ingame_scores"><h2>Scoreboard</h2>
+                <div id="ingame_scores-id"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -710,6 +715,19 @@
                     //shuffle answers
                     $('.answerbox').randomize('.answerrow', '.answer');
 
+                    //set the ingame Scoreboard
+                    clearChildren("ingame_scores-id");
+                    for(playerID in messageDict.scoreboard){
+                        var scoreBox = document.createElement("div");
+                        if(playerID == pID){ //my own score
+                            scoreBox.innerHTML = "you: " + messageDict.scoreboard[playerID];
+                        }
+                        else{
+                            scoreBox.innerHTML = playerID + ": " + messageDict.scoreboard[playerID];
+                        }
+                        document.getElementById("ingame_scores-id").appendChild(scoreBox);
+                    }
+
                     //reset + restart the timer bar
                     document.getElementById("myBar").style.width = '0%';
                     move(messageDict.question.responseTime);
@@ -747,6 +765,7 @@
     function checkItemQuantity(item){
         var payload = {
             'p_id': pID,
+            'game_id': gameID,
             'item': item
         };
         //make a synchronous ajax call to immediatly wait for the response

@@ -26,8 +26,9 @@ class ItemQuantityHandler(tornado.web.RequestHandler):
     def post(self):
         data = json.loads(self.request.body.decode("utf-8"))
         p_id = data['p_id']
+        game_id = data['game_id']
         item = data['item']
-        bool_activate = ItemTable.check_and_activate_item(item, p_id)
+        bool_activate = GamePool.get_game(game_id).get_item_table().check_and_activate_item(item, p_id)
         self.write(json.dumps({'activate': bool_activate}))
 
 
@@ -88,8 +89,8 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                     # TODO when PlayedQuestion Model exists: check if keys for pq exists, generate pq, add pq tp game
                     if 'acquired_item' in msg['played_question']:
                         item = msg['played_question']['acquired_item']
-                        ItemTable.add_item(item, player_id)
-                        print(ItemTable.player_items)
+                        GamePool.get_game(game_id).get_item_table().add_item(item, player_id)
+                        print(GamePool.get_game(game_id).get_item_table().get_player_items())
             else:
                 print('Could not resolve "type" key: ' + msg['type'])
 
