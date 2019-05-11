@@ -350,6 +350,11 @@
                             console.log("score X 5");
                         }
                         break;
+                        case "score/2": {
+                            currentScore /= 2;
+                            console.log("score / 2");
+                        }
+                        break;
                     }
                 }
                 score += currentScore;
@@ -369,6 +374,11 @@
                         case "scoreX5": {
                             currentScore *= 5;
                             console.log("score X 5");
+                        }
+                        break;
+                        case "score/2": {
+                            currentScore /= 2;
+                            console.log("score / 2");
                         }
                         break;
                     }
@@ -456,7 +466,13 @@
         else{ //item is no score multiplier, so we can always activate it
             if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
 
-                //TODO send msg to server that item has been activated (because effects need potential broadcast)
+                //send message to the server to broadcast the effect to other players
+                var payload = {
+                    'type': 'item_activation',
+                    'p_id': pID,
+                    'item': activeItemText
+                }
+                sendSocket(payload);
 
                 items[activeItemText] -= 1;
                 button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
@@ -594,18 +610,6 @@
         var messageDict = JSON.parse(evt.data);
         if ('type' in messageDict) { //type always needs to be in the response
             switch (messageDict.type) {
-                //check if ur username is known by the server
-                //TODO auth with password
-                case "login": {
-                  if(messageDict.p_id != -1){
-                    alert("successfully logged in");
-                    pID = messageDict.p_id
-                  }
-                  else{
-                    alert("user not known");
-                  }
-                }
-                break;
                 //display chat messages
                 case "user_message": {
                     var messageBox = document.createElement("div");
@@ -732,6 +736,15 @@
                     document.getElementById("myBar").style.width = '0%';
                     move(messageDict.question.responseTime);
 
+                }
+                break;
+                //item has been activated by another player
+                case "item_activation": {
+                        var item = messageDict.item;
+                        //for now we only have score/2 affecting other players, fill switch/case later when more items implemented
+                        if(item == "score/2"){
+                            activeScoreItem = item;
+                        }
                 }
                 break;
                 //all questions played --> show scoreboard

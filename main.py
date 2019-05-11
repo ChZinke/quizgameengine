@@ -44,25 +44,18 @@ class LoginHandler(tornado.web.RequestHandler):
 
 
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
-    connections = set()
     pid = ''
+    connections = set()
 
     def open(self, p_id):
+        self.pid = int(p_id)
         self.connections.add(self)
-        self.pid = p_id
 
     def on_message(self, message):
         msg = json.loads(message)
         print("incoming message: " + message)
         if 'type' in msg:  # 'type' always needs to be in an incoming message
-            if msg['type'] == 'login':
-                username = msg['user']
-                player_id = get_player_id(username)
-                self.pid = player_id if player_id is not None else -1  # -1 indicates login error
-                auth_msg = json.dumps({'type': 'login',
-                                       'p_id': self.pid})
-                self.write_message(auth_msg)  # authentification message only to this one client
-            elif msg['type'] == 'user_message':
+            if msg['type'] == 'user_message':
                 self.notify_clients(json.dumps(msg))
             elif msg['type'] == 'join_lobby':
                 player_id = msg['p_id']
@@ -91,15 +84,27 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                         item = msg['played_question']['acquired_item']
                         GamePool.get_game(game_id).get_item_table().add_item(item, player_id)
                         print(GamePool.get_game(game_id).get_item_table().get_player_items())
+            elif msg['type'] == 'item_activation':
+                p_id = msg['p_id']
+                item = msg['item']
+                print("Player " + str(p_id) + " triggered Item: " + item)
+                message = json.dumps({'type': 'item_activation',
+                                      'item': item})
+                self.notify_clients_except_self(p_id, message)
             else:
                 print('Could not resolve "type" key: ' + msg['type'])
 
         else:
-            print('Message Error, keys "type"  and/or "p_id" not supplied in incoming message')
+            print('Message Error, key "type"')
 
     def notify_clients(self, message):
         for client in self.connections:
             client.write_message(message)
+
+    def notify_clients_except_self(self, p_id, message):
+        for client in self.connections:
+            if client.pid != p_id:
+                client.write_message(message)
 
     def on_close(self):
         self.connections.remove(self)
