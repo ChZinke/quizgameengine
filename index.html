@@ -741,9 +741,22 @@
                 //item has been activated by another player
                 case "item_activation": {
                         var item = messageDict.item;
-                        //for now we only have score/2 affecting other players, fill switch/case later when more items implemented
-                        if(item == "score/2"){
-                            activeScoreItem = item;
+                        //possible effects
+                        switch(item){
+                            //divide score by 2
+                            case "score/2": {
+                                activeScoreItem = item;
+                            }
+                            break;
+
+                            //shuffle word order of question
+                            case "shuffle_question":{
+                                var question = document.getElementById("question").innerHTML;
+                                question = shuffle(question);
+                                document.getElementById("question").innerHTML = question;
+                            }
+                            break;
+
                         }
                 }
                 break;
@@ -801,6 +814,26 @@
             }
         });
 
+    }
+    function shuffle(question){
+        //helper function to shuffle words using adapted fisher-yates algorithm
+        function shuffle_words(arr){
+            var len = arr.length;
+            var swap;
+            var i;
+
+            while (len > 0) {
+                i = Math.floor(Math.random() * len);
+                len--;
+                swap = arr[len];
+                arr[len] = arr[i];
+                arr[i] = swap;
+            }
+            return arr;
+        }
+
+        var words = question.split(' ');
+        return shuffle_words(words).join(' ');
     }
 
     //send a chat message to the server, will be broadcasted to players
