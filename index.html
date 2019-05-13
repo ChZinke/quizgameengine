@@ -465,8 +465,11 @@
 
         if(["scoreX2", "scoreX5"].includes(activeItemText)){ //activated a score multiplier, check if there is another one active
             if(!activeScoreItem){
+                //check quantity on frontend and also on backend
                 if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
                     activeScoreItem = activeItemText;
+
+                    //lower quantity
                     items[activeItemText] -= 1;
                     button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
                 }
@@ -475,36 +478,26 @@
         else{ //item is no score multiplier, so we can always activate it
             if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
 
-                //send message to the server to broadcast the effect to other players
-                var payload = {
-                    'type': 'item_activation',
-                    'p_id': pID,
-                    'game_id': gameID,
-                    'item': activeItemText
+                // bomb (aka remove 2 wrong answers) is only for the player that activated it --> needs no broadcast
+                if(activeItemText != 'bomb'){
+                    //send message to the server to broadcast the effect to other players
+                    var payload = {
+                        'type': 'item_activation',
+                        'p_id': pID,
+                        'game_id': gameID,
+                        'item': activeItemText
+                    }
+                    sendSocket(payload);
                 }
-                sendSocket(payload);
+                else{ //bomb item, make 2 wrong answers red, simply take answer 3 and 4, since they are shuffled it doenst matter
+                    document.getElementById("2").className = "col py-3 px-lg-5 btn btn btn-danger answer";
+                    document.getElementById("3").className = "col py-3 px-lg-5 btn btn btn-danger answer";
+                }
 
                 items[activeItemText] -= 1;
                 button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
             }
         }
-
-        /*
-        if(!activeScoreItem){
-            var activeItemQuantity = button.getElementsByClassName("item-quantity")[0].textContent;
-            if(parseInt(activeItemQuantity) > 0){ //only if we have enough quantity of the item
-                activeItemText = button.getElementsByClassName("item-text")[0].textContent;
-
-                //set the item as active
-                activeItem = activeItemText;
-
-                //lower the quantity and adjust it in the
-                //TODO if quantity is now 0 then remove the button
-                items[activeItemText] -= 1;
-                button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
-            }
-        }
-        */
     }
 
     function getAmountOfJackpot(time, jackpot){
