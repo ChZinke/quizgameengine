@@ -1,9 +1,9 @@
-- answer-ids sind 1-4 pro frage --> nicht eindeutig, später datenmodell ändern oder id's anpassen
+﻿- answer-ids sind 1-4 pro frage --> nicht eindeutig, später datenmodell ändern oder id's anpassen
 - questions direkt durch lobbypool -> lobby -> game durchgeben, wenn model für quiz implementiert ist darüber; im moment funktion in game holt immer die gleichen fragen
 - quiz objekte in game/lobby einbauen
 - items an falsche frage anhängen --> man weiß dass die Frage falsch ist, hat dadurch Chance 1:3 statt 1:4 richtig zu antworten
 - scoreboard künftig immer anzeigen?
-- jackpot nur noch explizit als item
+- jackpot nur noch explizit als item   --> nur für mich oder für alle?!
 - mehrere items pro frage einsetzbar
 - badgesystem
 

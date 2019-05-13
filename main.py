@@ -87,10 +87,14 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
             elif msg['type'] == 'item_activation':
                 p_id = msg['p_id']
                 item = msg['item']
+                game_id = msg['game_id']
                 print("Player " + str(p_id) + " triggered Item: " + item)
                 message = json.dumps({'type': 'item_activation',
                                       'item': item})
-                self.notify_clients_except_self(p_id, message)
+                if item == 'jackpot':
+                    self.notify_clients(message)
+                else:
+                    self.notify_clients_except_self(p_id, message)
             else:
                 print('Could not resolve "type" key: ' + msg['type'])
 

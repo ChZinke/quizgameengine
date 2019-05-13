@@ -257,6 +257,7 @@
     var ws = null;
     var items = {}; //will hold the available items in form: {"item_name":"quantity"}, e.g. { "scoreX2": 1 }
     var activeScoreItem = null; //only one score multiplicator allowed per question (i.e. 2x and x5 not combineable)
+    var activeJackpotItem = false;
 
     window.onload = function(){
         getMainPageData();
@@ -322,6 +323,11 @@
         var b_answers = document.getElementsByClassName('answer');
         for (var i=0; i<b_answers.length; i++){
             b_answers[i].onclick = false;
+        }
+
+        //if jackpot item was triggered
+        if(activeJackpotItem){
+            jackpot.is_active = true;
         }
 
         var payload = {
@@ -405,6 +411,9 @@
         //reset the active score item, so that in the next round another item can potentially be activated
         activeScoreItem = null;
 
+        //reset the active jackpot item
+        activeJackpotItem = false;
+
         //simply remove the old elements since all will be reset further down
         clearChildren("items");
 
@@ -470,6 +479,7 @@
                 var payload = {
                     'type': 'item_activation',
                     'p_id': pID,
+                    'game_id': gameID,
                     'item': activeItemText
                 }
                 sendSocket(payload);
@@ -756,6 +766,11 @@
                                 document.getElementById("question").innerHTML = question;
                             }
                             break;
+
+                            //trigger a jackpot
+                            case "jackpot": {
+                                activeJackpotItem = true;
+                            }
 
                         }
                 }
