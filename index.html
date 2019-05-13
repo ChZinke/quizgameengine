@@ -310,7 +310,7 @@
             "a_id" : parseInt(btn.id) + 1
         };
         //stop the timer
-        clearInterval(progressBar);
+        clearTimeout(progressBar);
         //evaluate the given answer
         var evalPayload = evalQuestion(btn, question, jackpot, timeInSeconds);
         payload['played_question'] = evalPayload;
@@ -456,6 +456,24 @@
         return payload;
     }
 
+    //evaluation called when timer runs out, treated as wrong answer
+    function evalQuestionNotAnswered(time, isJackpot){
+            var payload = {
+                'type': 'answered_question',
+                'p_id': pID,
+                'game_id': gameID,
+                'q_id': -1, //TODO get the corrent question id in here (pass through like isJackpot) or make the server recognize this -1 indicating not answered
+                'a_id': 4, //not as severe as above since answer_id 4 is always a wrong answer
+                'played_question': {
+                    'speed': time,
+                    'is_correct': false,
+                    'is_jackpot': isJackpot,
+                    'score': 0
+                }
+            };
+            sendSocket(payload);
+    }
+
     //activates the item, note that only one score multiplicator is allowed per round
     //TODO make the button "look" clicked (enabled attribute?!)
     //TODO maybe move the lowering of the quantity to evaluation because if it is instantly adjusted (as it is now) it might cause confusion
@@ -567,21 +585,17 @@
         return false;
     }
 
-    function move(maxTime) {
-        //TODO call setInterval only every second and add a fraction to width else than +1
-        //TODO get the maxTime somehow into frame to have the bar reach 100% if maxTime is reached
-        var elem = document.getElementById("myBar");
-        var width = 1;
-        progressBar = setInterval(frame, 120);
-
-        function frame() {
-            if (width == 100) {
-                elem.style.width = '0%';
-                clearInterval(progressBar);
-            } else {
-                width++;
-                elem.style.width = width + '%';
-            }
+    //timer bar function; we need to pass jackpot activation here because when time runs out an evaluation signaling "wrong answer"
+    //will be send to server, for correct equation of jackpot probabilities it needs to know if question was a jackpot
+    function move(timeLeft, maxTime, isJackpot) {
+        var elem = $('#myProgress');
+        var progressWidth = timeLeft * elem.width() / maxTime;
+        elem.find('div').animate({width: progressWidth}, 500).html(timeLeft);
+        if(timeLeft > 0){ //still time, call again
+            progressBar = setTimeout(move, 1000, timeLeft - 1, maxTime, isJackpot);
+        }
+        else { //time is up
+            evalQuestionNotAnswered(maxTime, isJackpot);
         }
     }
 
@@ -737,7 +751,8 @@
 
                     //reset + restart the timer bar
                     document.getElementById("myBar").style.width = '0%';
-                    move(messageDict.question.responseTime);
+                    var time = messageDict.question.responseTime;
+                    move(time, time, messageDict.jackpot.is_active);
 
                 }
                 break;
