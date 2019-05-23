@@ -298,8 +298,9 @@ class Jackpot:
 
 class Item:
     def __init__(self):
-        self.possible_effects = ['scoreX2', 'scoreX5', 'score/2', 'shuffle_question', 'jackpot', 'bomb']  # further possibilites: jackpot next question, freeze other players,
-        self.effect = random.choice(self.possible_effects)
+        self.possible_effects = ['scoreX2', 'scoreX5', 'score/2', 'shuffle_question', 'jackpot', 'bomb', 'move_answers']  # further possibilites: jackpot next question, freeze other players,
+        self.debug = ['move_answers']
+        self.effect = random.choice(self.debug)
 
     def get_effect(self):
         return self.effect

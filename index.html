@@ -258,6 +258,7 @@
     var items = {}; //will hold the available items in form: {"item_name":"quantity"}, e.g. { "scoreX2": 1 }
     var activeScoreItem = null; //only one score multiplicator allowed per question (i.e. 2x and x5 not combineable)
     var activeJackpotItem = false;
+    var keepAnimating = false;
 
     window.onload = function(){
         getMainPageData();
@@ -302,6 +303,14 @@
         var timeDiff = endTime - startTime;
         var timeInSeconds = timeDiff / 1000;
 
+        keepAnimating = false;
+        $(".answer").stop(true,true);
+        var answers = document.getElementsByClassName("answer");
+        for(var i = 0; i < answers.length; i++){
+            answers[i].style.removeProperty("top");
+            answers[i].style.removeProperty("left");
+        }
+
         var payload = {
             "type": "answered_question",
             "p_id": pID,
@@ -324,6 +333,8 @@
         for (var i=0; i<b_answers.length; i++){
             b_answers[i].onclick = false;
         }
+
+
 
         //if jackpot item was triggered
         if(activeJackpotItem){
@@ -458,6 +469,15 @@
 
     //evaluation called when timer runs out, treated as wrong answer
     function evalQuestionNotAnswered(time, isJackpot){
+        //stop animation in case moving answer item was triggered
+        keepAnimating = false;
+        $(".answer").stop(true,true);
+        var answers = document.getElementsByClassName("answer");
+        for(var i = 0; i < answers.length; i++){
+            answers[i].style.removeProperty("top");
+            answers[i].style.removeProperty("left");
+        }
+
             var payload = {
                 'type': 'answered_question',
                 'p_id': pID,
@@ -779,6 +799,42 @@
                             case "jackpot": {
                                 activeJackpotItem = true;
                             }
+                            break;
+
+                            case "move_answers": { //TODO for now the whole answer block moves, maybe move each answer
+                                function newPosition(widthOfObj, heightOfObj){
+                                    var h = $(window).height() - heightOfObj;
+                                    var w = $(window).width() - widthOfObj;
+
+                                    var newH = Math.floor(Math.random() * h);
+                                    var newW = Math.floor(Math.random() * w);
+
+                                    return [newH, newW];
+                                }
+
+                                function animateAnswers(){
+                                    function animateAnswer(index){
+                                        var height = $("#" + index).height();
+                                        var width = $("#" + index).width();
+                                        var newPos = newPosition(width, height);
+                                        $("#" + index).animate({top: newPos[0], left: newPos[1]}, 1000,
+                                            function(){
+                                                if(keepAnimating){
+                                                    animateAnswer(index);
+                                                }
+                                            });
+                                    }
+
+                                    for(var i = 0; i < 4; i++){
+                                        animateAnswer(i);
+                                    }
+                                }
+                                //start the animation
+                                keepAnimating = true;
+                                animateAnswers();
+
+                            }
+                            break;
 
                         }
                 }
