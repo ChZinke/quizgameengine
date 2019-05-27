@@ -259,6 +259,7 @@
     var activeScoreItem = null; //only one score multiplicator allowed per question (i.e. 2x and x5 not combineable)
     var activeJackpotItem = false;
     var keepAnimating = false;
+    var savePoints = false;
 
     window.onload = function(){
         getMainPageData();
@@ -416,7 +417,67 @@
                 }
             }
             payload['is_correct'] = false;
-            payload['score'] = 0;
+
+            //item get_save_points was triggered
+            if(savePoints){
+                if(jackpot.is_active == true){
+                    var score = parseInt(document.getElementById("score").innerHTML);
+                    var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
+                    if(activeScoreItem){
+                        switch(activeScoreItem){
+                            case "scoreX2": {
+                                currentScore *= 2;
+                                console.log("score X 2")
+                            }
+                            break;
+                            case "scoreX5": {
+                                currentScore *= 5;
+                                console.log("score X 5");
+                            }
+                            break;
+                            case "score/2": {
+                                currentScore /= 2;
+                                console.log("score / 2");
+                            }
+                            break;
+                        }
+                    }
+                    score += currentScore;
+                    document.getElementById("score").innerHTML = score;
+                    payload['score'] = currentScore;
+                }
+                else{
+                    var score = parseInt(document.getElementById("score").innerHTML);
+                    var currentScore = parseInt(question.worth);
+                    if(activeScoreItem){
+                        switch(activeScoreItem){
+                            case "scoreX2": {
+                                currentScore *= 2;
+                                console.log("score X 2");
+                            }
+                            break;
+                            case "scoreX5": {
+                                currentScore *= 5;
+                                console.log("score X 5");
+                            }
+                            break;
+                            case "score/2": {
+                                currentScore /= 2;
+                                console.log("score / 2");
+                            }
+                            break;
+                        }
+                    }
+                    score += currentScore;
+                    document.getElementById("score").innerHTML = score;
+                    payload['score'] = currentScore;
+                }
+                //reset indicator
+                savePoints = false;
+            }
+            else{
+                payload['score'] = 0;
+            }
         }
 
         //reset the active score item, so that in the next round another item can potentially be activated
@@ -516,8 +577,8 @@
         else{ //item is no score multiplier, so we can always activate it
             if(activeItemQuantity > 0 && checkItemQuantity(activeItemText)){
 
-                // bomb (aka remove 2 wrong answers) is only for the player that activated it --> needs no broadcast
-                if(activeItemText != 'bomb'){
+                // bomb (aka remove 2 wrong answers), save points is only for the player that activated it --> needs no broadcast
+                if(!(['bomb', 'get_points_save'].includes(activeItemText))){
                     //send message to the server to broadcast the effect to other players
                     var payload = {
                         'type': 'item_activation',
@@ -527,9 +588,21 @@
                     }
                     sendSocket(payload);
                 }
-                else{ //bomb item, make 2 wrong answers red, simply take answer 3 and 4, since they are shuffled it doenst matter
-                    document.getElementById("2").className = "col py-3 px-lg-5 btn btn btn-danger answer";
-                    document.getElementById("3").className = "col py-3 px-lg-5 btn btn btn-danger answer";
+                else{
+                    switch(activeItemText){
+                        //bomb item, make 2 wrong answers red, simply take answer 3 and 4, since they are shuffled it doenst matter
+                        case "bomb": {
+                            document.getElementById("2").className = "col py-3 px-lg-5 btn btn btn-danger answer";
+                            document.getElementById("3").className = "col py-3 px-lg-5 btn btn btn-danger answer";
+
+                        }
+                        break;
+
+                        //get points even if given answer was wrong
+                        case "get_points_save": {
+                            savePoints = true;
+                        }
+                    }
                 }
 
                 items[activeItemText] -= 1;
