@@ -757,6 +757,7 @@
                     $('.answerbox').randomize('.answerrow', '.answer');
 
                     //set the ingame Scoreboard
+                    document.getElementById("ingame_scoreboard").style.display = "inline";
                     clearChildren("ingame_scores-id");
                     for(playerID in messageDict.scoreboard){
                         var scoreBox = document.createElement("div");
@@ -833,6 +834,11 @@
                                 keepAnimating = true;
                                 animateAnswers();
 
+                            }
+                            break;
+
+                            case 'hide_scoreboard': {
+                                document.getElementById("ingame_scoreboard").style.display = "none";
                             }
                             break;
 
