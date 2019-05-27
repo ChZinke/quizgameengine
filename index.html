@@ -569,8 +569,7 @@
                     activeScoreItem = activeItemText;
 
                     //lower quantity
-                    items[activeItemText] -= 1;
-                    button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
+                    lowerItemQuantity(button, activeItemText);
                 }
             }
         }
@@ -594,7 +593,6 @@
                         case "bomb": {
                             document.getElementById("2").className = "col py-3 px-lg-5 btn btn btn-danger answer";
                             document.getElementById("3").className = "col py-3 px-lg-5 btn btn btn-danger answer";
-
                         }
                         break;
 
@@ -605,12 +603,20 @@
                     }
                 }
 
-                items[activeItemText] -= 1;
-                button.getElementsByClassName("item-quantity")[0].textContent = items[activeItemText];
+                //lower quantity
+                lowerItemQuantity(button, activeItemText);
             }
         }
     }
 
+    //lower item quantity of "item" and render the display on the "button"
+    //just separated in a function for means of modularisation
+    function lowerItemQuantity(button, item){
+        items[item] -= 1;
+        button.getElementsByClassName("item-quantity")[0].textContent = items[item];
+    }
+
+    //compute amount of jackpot depending on time taken to answer
     function getAmountOfJackpot(time, jackpot){
         if(time < 5){
             return jackpot.amount;
@@ -722,24 +728,7 @@
             switch (messageDict.type) {
                 //display chat messages
                 case "user_message": {
-                    var messageBox = document.createElement("div");
-                    messageBox.className = 'd-flex justify-content-start mb-4';
-                    var userbox = document.createElement('div');
-                    userbox.className = 'img_cont_msg';
-                    var userimg = document.createElement('img');
-                    userimg.className =  'rounded-circle user_img_msg'
-                    userimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
-                    userbox.appendChild(userimg);
-                    var usermsg = document.createElement('div');
-                    usermsg.className = "msg_cotainer";
-                    usermsg.innerHTML = messageDict.message
-                    var usertime = document.createElement('span');
-                    usertime.className = "msg_time";
-                    usertime.innerHTML = "8:40 AM, Today";
-                    usermsg.appendChild(usertime);
-                    messageBox.appendChild(userbox);
-                    messageBox.appendChild(usermsg);
-                    document.getElementById("messages").appendChild(messageBox)
+                    displayChatMessage(messageDict.message);
                 }
                 break;
                 //close connect
@@ -752,32 +741,7 @@
                     clearChildren("contacts");
 
                     //put the users
-                    for (id in messageDict.lobby) {
-                        var userBox = document.createElement("li");
-                        userBox.className = 'active';
-                        //userBox.innerHTML = messageDict.lobby[id];
-                        var userdiv = document.createElement('div');
-                            userdiv.className = 'd-flex bd-highlight';
-                        var imgdiv = document.createElement('div');
-                            imgdiv.className = 'img_cont';
-                        var uimg = document.createElement('img');
-                            uimg.className = 'rounded-circle user_img';
-                            uimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
-                        var uimgspan = document.createElement('span');
-                            uimgspan.className = 'online_icon';
-                        imgdiv.appendChild(uimg)
-                        imgdiv.appendChild(uimgspan)
-                        var udivdesc = document.createElement('div');
-                            udivdesc.className = 'user_info';
-                        var udivtext = document.createElement('span');
-                            udivtext.innerHTML = messageDict.nicks[id];
-                        udivdesc.appendChild(udivtext)
-                        userdiv.appendChild(imgdiv)
-                        userdiv.appendChild(udivdesc)
-                        userBox.appendChild(userdiv)
-                        userBox.setAttribute('id', messageDict.lobby[id]);
-                        document.getElementById("contacts").appendChild(userBox);
-                    }
+                    displayUsersInLobby(messageDict.lobby, messageDict.nicks);
                 }
                 break;
                 //enough players in the lobby --> games starts
@@ -788,18 +752,7 @@
                 break;
                 //play a question
                 case 'question': {
-                    document.getElementById('question').innerHTML = messageDict.question.questioning;
-                    var answers = messageDict.question.answers;
-                    for (answerid in answers ){
-                        var answerElement = document.getElementById("a"+(parseFloat(answerid)+1))
-                        answerElement.innerHTML = answers[answerid].content;
-                        if (answers[answerid].hasOwnProperty("assigned_effect")){
-                            var effectElement = document.createElement('i');
-                            effectElement.className = "fas fa-star ml-5 item";
-                            effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effect));
-                            answerElement.appendChild(effectElement);
-                        }
-                    }
+                    displayQuestion(messageDict.question);
 
                     var startTime = new Date();
 
@@ -830,18 +783,7 @@
                     $('.answerbox').randomize('.answerrow', '.answer');
 
                     //set the ingame Scoreboard
-                    document.getElementById("ingame_scoreboard").style.display = "inline";
-                    clearChildren("ingame_scores-id");
-                    for(playerID in messageDict.scoreboard){
-                        var scoreBox = document.createElement("div");
-                        if(playerID == pID){ //my own score
-                            scoreBox.innerHTML = "you: " + messageDict.scoreboard[playerID];
-                        }
-                        else{
-                            scoreBox.innerHTML = playerID + ": " + messageDict.scoreboard[playerID];
-                        }
-                        document.getElementById("ingame_scores-id").appendChild(scoreBox);
-                    }
+                    displayIngameScoreboard(messageDict.scoreboard);
 
                     //reset + restart the timer bar
                     document.getElementById("myBar").style.width = '0%';
@@ -973,6 +915,7 @@
         });
 
     }
+
     function shuffle(question){
         //helper function to shuffle words using adapted fisher-yates algorithm
         function shuffle_words(arr){
@@ -1009,6 +952,88 @@
         messageInput.value = "";
         return false;
     }
+
+    function displayChatMessage(message){
+        var messageBox = document.createElement("div");
+        messageBox.className = 'd-flex justify-content-start mb-4';
+        var userbox = document.createElement('div');
+        userbox.className = 'img_cont_msg';
+        var userimg = document.createElement('img');
+        userimg.className =  'rounded-circle user_img_msg'
+        userimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
+        userbox.appendChild(userimg);
+        var usermsg = document.createElement('div');
+        usermsg.className = "msg_cotainer";
+        usermsg.innerHTML = message;
+        var usertime = document.createElement('span');
+        usertime.className = "msg_time";
+        var time = new Date().toLocaleTimeString();
+        usertime.innerHTML = time;
+        usermsg.appendChild(usertime);
+        messageBox.appendChild(userbox);
+        messageBox.appendChild(usermsg);
+        document.getElementById("messages").appendChild(messageBox)
+    }
+
+    function displayUsersInLobby(lobby, nicks){
+        for (id in lobby) {
+            var userBox = document.createElement("li");
+            userBox.className = 'active';
+            //userBox.innerHTML = messageDict.lobby[id];
+            var userdiv = document.createElement('div');
+                userdiv.className = 'd-flex bd-highlight';
+            var imgdiv = document.createElement('div');
+                imgdiv.className = 'img_cont';
+            var uimg = document.createElement('img');
+                uimg.className = 'rounded-circle user_img';
+                uimg.src = '/img/iconfinder_icon-64-face-sunglasses_315578.png';
+            var uimgspan = document.createElement('span');
+                uimgspan.className = 'online_icon';
+            imgdiv.appendChild(uimg)
+            imgdiv.appendChild(uimgspan)
+            var udivdesc = document.createElement('div');
+                udivdesc.className = 'user_info';
+            var udivtext = document.createElement('span');
+                udivtext.innerHTML = nicks[id];
+            udivdesc.appendChild(udivtext)
+            userdiv.appendChild(imgdiv)
+            userdiv.appendChild(udivdesc)
+            userBox.appendChild(userdiv)
+            userBox.setAttribute('id', lobby[id]);
+            document.getElementById("contacts").appendChild(userBox);
+        }
+    }
+
+    function displayQuestion(question){
+        document.getElementById('question').innerHTML = question.questioning;
+        var answers = question.answers;
+        for (answerid in answers ){
+            var answerElement = document.getElementById("a"+(parseFloat(answerid)+1))
+            answerElement.innerHTML = answers[answerid].content;
+            if (answers[answerid].hasOwnProperty("assigned_effect")){
+                var effectElement = document.createElement('i');
+                effectElement.className = "fas fa-star ml-5 item";
+                effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effect));
+                answerElement.appendChild(effectElement);
+            }
+        }
+    }
+
+    function displayIngameScoreboard(scoreboard){
+        document.getElementById("ingame_scoreboard").style.display = "inline";
+        clearChildren("ingame_scores-id");
+        for(playerID in scoreboard){
+            var scoreBox = document.createElement("div");
+            if(playerID == pID){ //my own score
+                scoreBox.innerHTML = "you: " + scoreboard[playerID];
+            }
+            else{
+                scoreBox.innerHTML = playerID + ": " + scoreboard[playerID];
+            }
+            document.getElementById("ingame_scores-id").appendChild(scoreBox);
+        }
+    }
+
     //helper function to clear child nodes
     function clearChildren(parentID){
         var parent = document.getElementById(parentID);
