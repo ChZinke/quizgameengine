@@ -818,33 +818,6 @@
                             break;
 
                             case "move_answers": { //TODO fix that they dont go out of screen
-                                function newPosition(widthOfObj, heightOfObj){
-                                    var h = $(window).height() - heightOfObj;
-                                    var w = $(window).width() - widthOfObj;
-
-                                    var newH = Math.floor(Math.random() * h);
-                                    var newW = Math.floor(Math.random() * w);
-
-                                    return [newH, newW];
-                                }
-
-                                function animateAnswers(){
-                                    function animateAnswer(index){
-                                        var height = $("#" + index).height();
-                                        var width = $("#" + index).width();
-                                        var newPos = newPosition(width, height);
-                                        $("#" + index).animate({top: newPos[0], left: newPos[1]}, 1000,
-                                            function(){
-                                                if(keepAnimating){
-                                                    animateAnswer(index);
-                                                }
-                                            });
-                                    }
-
-                                    for(var i = 0; i < 4; i++){
-                                        animateAnswer(i);
-                                    }
-                                }
                                 //start the animation
                                 keepAnimating = true;
                                 animateAnswers();
@@ -900,6 +873,7 @@
             method: "POST",
             contentType: "application/json",
             async: false,
+            timeout: 1500,
             data: JSON.stringify(payload),
             dataType: "json",
             success: function(response){
@@ -1033,6 +1007,36 @@
             document.getElementById("ingame_scores-id").appendChild(scoreBox);
         }
     }
+
+    function animateAnswers(){
+
+        function newPosition(widthOfObj, heightOfObj){
+            var h = $(window).height() - heightOfObj;
+            var w = $(window).width() - widthOfObj;
+
+            var newH = Math.floor(Math.random() * (h-heightOfObj));
+            var newW = Math.floor(Math.random() * (w-widthOfObj));
+
+            return [newH, newW];
+        }
+
+        function animateAnswer(index){
+            var height = $("#" + index).height();
+            var width = $("#" + index).width();
+            var newPos = newPosition(width, height);
+            $("#" + index).animate({top: newPos[0], left: newPos[1]}, 1000,
+                function(){
+                    if(keepAnimating){
+                        animateAnswer(index);
+                    }
+                });
+        }
+
+        for(var i = 0; i < 4; i++){
+            animateAnswer(i);
+        }
+    }
+
 
     //helper function to clear child nodes
     function clearChildren(parentID){

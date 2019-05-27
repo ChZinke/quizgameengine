@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
@@ -102,6 +103,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
             print('Message Error, key "type"')
 
     def notify_clients(self, message):
+        print('sent: ' + message)
         for client in self.connections:
             client.write_message(message)
 
