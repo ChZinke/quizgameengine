@@ -51,14 +51,14 @@
         },
         {
           "id": 4,
-          "content": "Der W�stenplanet",
+          "content": "Der Wüstenplanet",
           "type": false
         }
       ],
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 2,
-      "questioning": "Willkommen in der W�ste der Wirklichkeit",
+      "questioning": "Willkommen in der Wüste der Wirklichkeit",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -82,7 +82,7 @@
         },
         {
           "id": 4,
-          "content": "Star Wars - Das Imperium schl�gt zur�ck",
+          "content": "Star Wars - Das Imperium schlägt zurück",
           "type": false
         }
       ],
@@ -98,12 +98,12 @@
       "answers": [
         {
           "id": 1,
-          "content": "Der K�nig der L�wen",
+          "content": "Der König der Löwen",
           "type": true
         },
         {
           "id": 2,
-          "content": "Der Heer der Ringe",
+          "content": "Der Herr der Ringe",
           "type": false
         },
         {
@@ -113,7 +113,7 @@
         },
         {
           "id": 4,
-          "content": "Zur�ck in die Zukunft",
+          "content": "Zurück in die Zukunft",
           "type": false
         }
       ],
@@ -129,7 +129,7 @@
       "answers": [
         {
           "id": 1,
-          "content": "Das f�nfte Element",
+          "content": "Das fünfte Element",
           "type": true
         },
         {
@@ -191,7 +191,7 @@
       "answers": [
         {
           "id": 1,
-          "content": "Der wei�e Hai",
+          "content": "Der weiße Hai",
           "type": true
         },
         {
@@ -244,7 +244,7 @@
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 8,
-      "questioning": "Ich bin nur ein Arschloch, das f�r Geld noch gr��ere Arschl�cher fertig macht.",
+      "questioning": "Ich bin nur ein Arschloch, das für Geld noch größere Arschlöcher fertig macht.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -263,7 +263,7 @@
         },
         {
           "id": 3,
-          "content": "A.I. - K�nstliche Intelligenz",
+          "content": "A.I. - Künstliche Intelligenz",
           "type": false
         },
         {
@@ -275,7 +275,7 @@
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 9,
-      "questioning": "Am Anfang war es gar nicht so schlecht sich wie G�tter zu f�hlen. Das schlimme daran war, zu wissen, dass nichts davon real ist.",
+      "questioning": "Am Anfang war es gar nicht so schlecht sich wie Götter zu fühlen. Das Schlimme daran war, zu wissen, dass nichts davon real ist.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -306,7 +306,7 @@
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 10,
-      "questioning": "Das ist keine �bung. Das ist die Apokalypse. Bitte bleiben Sie ruhig und verlassen Sie sofort das Geb�ude.",
+      "questioning": "Das ist keine Übung. Das ist die Apokalypse. Bitte bleiben Sie ruhig und verlassen Sie sofort das Gebäude.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -320,7 +320,7 @@
         },
         {
           "id": 2,
-          "content": "Tats�chlich... Liebe",
+          "content": "Tatsächlich... Liebe",
           "type": false
         },
         {
@@ -346,7 +346,7 @@
       "answers": [
         {
           "id": 1,
-          "content": "Fr�hst�ck bei Tiffany",
+          "content": "Frühstück bei Tiffany",
           "type": true
         },
         {
@@ -356,19 +356,19 @@
         },
         {
           "id": 3,
-          "content": "Der Teufel tr�gt Prada",
+          "content": "Der Teufel trägt Prada",
           "type": false
         },
         {
           "id": 4,
-          "content": "Nat�rlich blond",
+          "content": "Natürlich blond",
           "type": false
         }
       ],
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 12,
-      "questioning": "Die Elektronenblitze der Reporter sind verheerend f�r den Teint. Man w�rde mich kaum noch in ein Lokal lassen.",
+      "questioning": "Die Elektronenblitze der Reporter sind verheerend für den Teint. Man würde mich kaum noch in ein Lokal lassen.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -399,7 +399,7 @@
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 13,
-      "questioning": "Auch wenn es dein Ego ersch�ttert, aber das ist nicht das erste mal, dass ich eine Knarre vor der Nase habe.",
+      "questioning": "Auch wenn es dein Ego erschüttert, aber das ist nicht das erste mal, dass ich eine Knarre vor der Nase habe.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -430,7 +430,7 @@
       "dynamicDifficulty": 1,
       "staticDifficulty": 1,
       "id": 14,
-      "questioning": "Das ist der Preis, den ich geschworen habe, zu zahlen und ich zahl ihn. Man rettet kein kleines M�dchen und wirft sie den W�lfen dann zum Frass vor. Nicht mit mir.",
+      "questioning": "Das ist der Preis, den ich geschworen habe, zu zahlen und ich zahl ihn. Man rettet kein kleines Mädchen und wirft sie den Wölfen dann zum Fraß vor. Nicht mit mir.",
       "responseTime": 60,
       "topic": "Filmzitate raten",
       "worth": 200
@@ -454,7 +454,7 @@
         },
         {
           "id": 4,
-          "content": "Prometheus � Dunkle Zeichen",
+          "content": "Prometheus - Dunkle Zeichen",
           "type": false
         }
       ],

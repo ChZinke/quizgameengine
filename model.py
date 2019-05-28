@@ -206,7 +206,7 @@ class Quiz:
 
 
 def get_player(id, json_path="players.json"):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         if int(id) > int(data['highest_id']):
             print('player will be none because id too high')
@@ -222,7 +222,7 @@ def get_player(id, json_path="players.json"):
 
 
 def get_question(id, json_path='questions.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         if int(id) > int(data['highest_id']):
             return None
@@ -244,7 +244,7 @@ def get_question(id, json_path='questions.json'):
 
 def get_questions_of_quiz(quiz, json_path='questions.json'):
     question_list = []
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         for question in data['questions']:
             if question['topic'] == quiz.get_title():
@@ -262,7 +262,7 @@ def get_questions_of_quiz(quiz, json_path='questions.json'):
 
 
 def get_quiz(id, json_path='quizzes.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         if int(id) > int(data['highest_id']):
             return None
@@ -276,7 +276,7 @@ def get_quiz(id, json_path='quizzes.json'):
 
 def get_all_quizzes(json_path='quizzes.json'):
     quizzes = []
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         for quiz in data['quizzes']:
             instance = Quiz(quiz['title'], quiz['length'], quiz['min_participants'])
@@ -291,7 +291,7 @@ def store_player(player, json_path='players.json'):
     :param json_path: path to json file
     :return: void
     '''
-    with open(json_path, 'r') as f:
+    with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
         new_id = data['highest_id'] + 1
         data['players'].append({'id': new_id,
@@ -299,13 +299,13 @@ def store_player(player, json_path='players.json'):
                                 'password': player.get_password(),
                                 'mail': player.get_mail()})
         data['highest_id'] = new_id
-    with open(json_path, 'w') as f:
+    with open(json_path, 'w', encoding='utf-8') as f:
         print('stored player ID: ' + str(new_id) + ' to data')
         json.dump(data, f)
 
 
 def store_question(question, json_path='questions.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         new_id = data['highest_id'] + 1
         data['questions'].append({'answers': [
@@ -334,13 +334,13 @@ def store_question(question, json_path='questions.json'):
                                   'topic': question.get_topic(),
                                   'worth': question.get_worth()})
         data['highest_id'] = new_id
-    with open(json_path, 'w') as f:
+    with open(json_path, 'w', encoding='utf-8') as f:
         print('stored Question ID: ' + str(new_id) + ' to data')
         json.dump(data, f)
 
 
 def store_quiz(quiz, json_path='quizzes.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         new_id = data['highest_id'] + 1
         data['quizzes'].append({'id': new_id,
@@ -349,7 +349,7 @@ def store_quiz(quiz, json_path='quizzes.json'):
                                 'min_participants': quiz.get_min_participants()
                                 })
         data['highest_id'] = new_id
-    with open(json_path, 'w') as f:
+    with open(json_path, 'w', encoding='utf-8') as f:
         print('stored Quiz ID: ' + str(new_id) + ' to data')
         json.dump(data, f)
 
@@ -361,7 +361,7 @@ def get_player_id(nickname, json_path='players.json'):
     :param json_path: path to json file
     :return: id if player is present, else None
     '''
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         for player in data['players']:
             if player['nickname'] == nickname:
@@ -370,7 +370,7 @@ def get_player_id(nickname, json_path='players.json'):
 
 
 def get_question_id(questioning, json_path='questions.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         for question in data['questions']:
             if question['questioning'] == questioning:
@@ -379,7 +379,7 @@ def get_question_id(questioning, json_path='questions.json'):
 
 
 def get_quiz_id(title, json_path='quizzes.json'):
-    with open(json_path) as f:
+    with open(json_path, encoding='utf-8') as f:
         data = json.load(f)
         for quiz in data['quizzes']:
             if quiz['title'] == title:

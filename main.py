@@ -103,7 +103,6 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
             print('Message Error, key "type"')
 
     def notify_clients(self, message):
-        print('sent: ' + message)
         for client in self.connections:
             client.write_message(message)
 
