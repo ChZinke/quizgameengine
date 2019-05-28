@@ -20,3 +20,7 @@ mehr items:
     - scoreboard ausschalten
     - duell modus/ team modus
     - punkte trotz falscher antwort bekommen
+
+
+- in lobby html sind id's zahlen, aber die zahlen brauchen wir schon als id's für die buttons der antworten
+    --> identifier, z.b. "u" davor setzen 

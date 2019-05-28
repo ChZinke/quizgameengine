@@ -335,8 +335,6 @@
             b_answers[i].onclick = false;
         }
 
-
-
         //if jackpot item was triggered
         if(activeJackpotItem){
             jackpot.is_active = true;
@@ -351,60 +349,7 @@
         if(parseInt(pressedBtn.id) == 0){
             pressedBtn.className = "col py-3 px-lg-5 btn btn btn-success answer";
             payload['is_correct'] = true;
-
-            //TODO put score computation in separate function
-            if(jackpot.is_active == true){
-                var score = parseInt(document.getElementById("score").innerHTML);
-                var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
-                if(activeScoreItem){
-                    switch(activeScoreItem){
-                        case "scoreX2": {
-                            currentScore *= 2;
-                            console.log("score X 2")
-                        }
-                        break;
-                        case "scoreX5": {
-                            currentScore *= 5;
-                            console.log("score X 5");
-                        }
-                        break;
-                        case "score/2": {
-                            currentScore /= 2;
-                            console.log("score / 2");
-                        }
-                        break;
-                    }
-                }
-                score += currentScore;
-                document.getElementById("score").innerHTML = score;
-                payload['score'] = currentScore;
-            }
-            else{
-                var score = parseInt(document.getElementById("score").innerHTML);
-                var currentScore = parseInt(question.worth);
-                if(activeScoreItem){
-                    switch(activeScoreItem){
-                        case "scoreX2": {
-                            currentScore *= 2;
-                            console.log("score X 2");
-                        }
-                        break;
-                        case "scoreX5": {
-                            currentScore *= 5;
-                            console.log("score X 5");
-                        }
-                        break;
-                        case "score/2": {
-                            currentScore /= 2;
-                            console.log("score / 2");
-                        }
-                        break;
-                    }
-                }
-                score += currentScore;
-                document.getElementById("score").innerHTML = score;
-                payload['score'] = currentScore;
-            }
+            payload['score'] = computeAndSetScore(jackpot, activeScoreItem, time, question.worth);
         }
         //wrong answer chosen, make pressed button red and button with correct answer green
         else{
@@ -420,58 +365,8 @@
 
             //item get_save_points was triggered
             if(savePoints){
-                if(jackpot.is_active == true){
-                    var score = parseInt(document.getElementById("score").innerHTML);
-                    var currentScore = parseInt(question.worth) + getAmountOfJackpot(time, jackpot);
-                    if(activeScoreItem){
-                        switch(activeScoreItem){
-                            case "scoreX2": {
-                                currentScore *= 2;
-                                console.log("score X 2")
-                            }
-                            break;
-                            case "scoreX5": {
-                                currentScore *= 5;
-                                console.log("score X 5");
-                            }
-                            break;
-                            case "score/2": {
-                                currentScore /= 2;
-                                console.log("score / 2");
-                            }
-                            break;
-                        }
-                    }
-                    score += currentScore;
-                    document.getElementById("score").innerHTML = score;
-                    payload['score'] = currentScore;
-                }
-                else{
-                    var score = parseInt(document.getElementById("score").innerHTML);
-                    var currentScore = parseInt(question.worth);
-                    if(activeScoreItem){
-                        switch(activeScoreItem){
-                            case "scoreX2": {
-                                currentScore *= 2;
-                                console.log("score X 2");
-                            }
-                            break;
-                            case "scoreX5": {
-                                currentScore *= 5;
-                                console.log("score X 5");
-                            }
-                            break;
-                            case "score/2": {
-                                currentScore /= 2;
-                                console.log("score / 2");
-                            }
-                            break;
-                        }
-                    }
-                    score += currentScore;
-                    document.getElementById("score").innerHTML = score;
-                    payload['score'] = currentScore;
-                }
+                payload['score'] = computeAndSetScore(jackpot, activeScoreItem, time, question.worth);
+
                 //reset indicator
                 savePoints = false;
             }
@@ -526,6 +421,43 @@
         }
 
         return payload;
+    }
+
+    function computeAndSetScore(jackpot, item, time, worth){
+        var score = parseInt(document.getElementById("score").innerHTML);
+        var currentScore = parseInt(worth);
+        if(jackpot.is_active){
+            currentScore += getAmountOfJackpot(time, jackpot);
+        }
+        currentScore = computeScoreIfItem(item, currentScore);
+        score += currentScore;
+        document.getElementById("score").innerHTML = score;
+        return currentScore;
+    }
+
+    function computeScoreIfItem(item, currentScore){
+        if(item){
+            switch(item){
+                case "scoreX2": {
+                    return currentScore * 2;
+                    console.log("score X 2")
+                }
+                break;
+                case "scoreX5": {
+                    return currentScore * 5;
+                    console.log("score X 5");
+                }
+                break;
+                case "score/2": {
+                    return currentScore / 2;
+                    console.log("score / 2");
+                }
+                break;
+            }
+        }
+        else{
+            return currentScore;
+        }
     }
 
     //evaluation called when timer runs out, treated as wrong answer
