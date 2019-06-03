@@ -1,25 +1,41 @@
 ﻿- answer-ids sind 1-4 pro frage --> nicht eindeutig, später datenmodell ändern oder id's anpassen
-- questions direkt durch lobbypool -> lobby -> game durchgeben, wenn model für quiz implementiert ist darüber; im moment funktion in game holt immer die gleichen fragen
-- quiz objekte in game/lobby einbauen
 - items an falsche frage anhängen --> man weiß dass die Frage falsch ist, hat dadurch Chance 1:3 statt 1:4 richtig zu antworten
-- scoreboard künftig immer anzeigen?
 - jackpot nur noch explizit als item   --> nur für mich oder für alle?!
-- mehrere items pro frage einsetzbar
 - badgesystem
 
 - item gewichtung: impact, frequenz
+	idee: - initialer integer wert für impact festsetzen (1 -> kleiner vorteil, 5 -> extremer vorteil z.b.)  		-->  intuitiv / experimentell bestimmen 
+	      - feste chance (z.b. 25%), dass überhaupt item an frage angehängt wird, verhindert zu viele items im spiel	--> intuitiv / experimentell bestimmen
+	      - jeder spieler bekommt dann unterschiedliches item angehängt, anhand: 
+
+	      	- aktueller stand im scoreboard höher (= mehr Punkte) --> potenziell schlechteres item
+		- aktueller stand im scoreboard niedriger (= weniger Punkte) --> potenziell besseres item
+		- verhindert dass bester noch besseres item bekommt und sich damit absetzen kann
+
+		- Spieler hat schon gute items verfügbar --> potenziell schlechteres item
+		- Spieler hat keine oder nur schlechte items verfügbar --> potenziell besseres item
+		- verhindert overpowered synergies (z.b. scoreX5 und jackpot)	
+
+		- globale beschränkungen von items (z.b. nur ein Spieler darf Jackpot item halten)
+
+		- punktespanne zw. erstem und letztem groß --> bessere items ausschütten
+		- punktespanne 			      klein --> schlechtere items ausschütten
+		- begünstigt klügsten wenn alle punkte rel. gleich auf
+		- versucht spieler wieder auf ähnliche punkte zu bringen wenn punktespanne schon groß geworden ist	
+
+
 
 mehr items:
-    - tintenfisch mario kart / wortreihenfolge shufflen
-    - score der anderen / 2
+    - tintenfisch mario kart / wortreihenfolge shufflen   - drin
+    - score der anderen / 2				  - drin
     - items zum blockieren von effekten
-    - falsche antwort wegsprengen
+    - falsche antwort wegsprengen			  - drin
     - publikumsjoker mit generierter statistik
     - gegnern mehr antworten geben
-    - gegner antworten im bildschirm rumfliegen lassen
-    - scoreboard ausschalten
+    - gegner antworten im bildschirm rumfliegen lassen	  - drin
+    - scoreboard ausschalten				  - drin
     - duell modus/ team modus
-    - punkte trotz falscher antwort bekommen
+    - punkte trotz falscher antwort bekommen		  - drin
 
 
 - in lobby html sind id's zahlen, aber die zahlen brauchen wir schon als id's für die buttons der antworten
