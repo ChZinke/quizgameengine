@@ -4,9 +4,9 @@
 - badgesystem
 
 - item gewichtung: impact, frequenz
-	idee: - initialer integer wert für impact festsetzen (1 -> kleiner vorteil, 5 -> extremer vorteil z.b.)  		-->  intuitiv / experimentell bestimmen 
+	idee: - initialer integer wert für impact festsetzen (1 -> kleiner vorteil, 5 -> extremer vorteil z.b.)  		-->  intuitiv / experimentell bestimmen
 	      - feste chance (z.b. 25%), dass überhaupt item an frage angehängt wird, verhindert zu viele items im spiel	--> intuitiv / experimentell bestimmen
-	      - jeder spieler bekommt dann unterschiedliches item angehängt, anhand: 
+	      - jeder spieler bekommt dann unterschiedliches item angehängt, anhand:
 
 	      	- aktueller stand im scoreboard höher (= mehr Punkte) --> potenziell schlechteres item
 		- aktueller stand im scoreboard niedriger (= weniger Punkte) --> potenziell besseres item
@@ -14,14 +14,14 @@
 
 		- Spieler hat schon gute items verfügbar --> potenziell schlechteres item
 		- Spieler hat keine oder nur schlechte items verfügbar --> potenziell besseres item
-		- verhindert overpowered synergies (z.b. scoreX5 und jackpot)	
+		- verhindert overpowered synergies (z.b. scoreX5 und jackpot)
 
 		- globale beschränkungen von items (z.b. nur ein Spieler darf Jackpot item halten)
 
 		- punktespanne zw. erstem und letztem groß --> bessere items ausschütten
 		- punktespanne 			      klein --> schlechtere items ausschütten
 		- begünstigt klügsten wenn alle punkte rel. gleich auf
-		- versucht spieler wieder auf ähnliche punkte zu bringen wenn punktespanne schon groß geworden ist	
+		- versucht spieler wieder auf ähnliche punkte zu bringen wenn punktespanne schon groß geworden ist
 
 
 
@@ -39,4 +39,12 @@ mehr items:
 
 
 - in lobby html sind id's zahlen, aber die zahlen brauchen wir schon als id's für die buttons der antworten
-    --> identifier, z.b. "u" davor setzen 
+    --> identifier, z.b. "u" davor setzen
+
+
+- TODOS:
+	- spiel so nicht parallelisierbar wegen globalem sockethandler
+		-FIX: - Lobby join über REST, als Antwort lobby id, diese lobby id dem socket in open() per parameter mitgeben
+			  - notify clients erhält lobby_id parameter, schickt nur an die clients die zu der id gehören
+			  - die lobby die nachricht senden will gibt dabei ihre id als parameter
+			  - im verlauf lobby id durch game id tauschen und senden genauso

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import random
+import warnings
 from model import *
 
 
@@ -342,3 +343,40 @@ class ItemTable:
                     del self.player_items[element][k]
             if not element:
                 del self.player_items[element]
+
+
+class Protocol:
+    """
+    logging utility to handle socket interrupts
+    defines set of states for each player:
+    - joined_lobby      : lobby id
+    - joined_game       : game id
+    - got_question      : latest received question id
+    - answered_question : latest answered question
+    - got_scoreboard    : true/false
+    """
+    def __init__(self, lobby_id):
+        self.lobby_id = lobby_id
+        self.game_id = -1
+        self.states = ['joined_lobby', 'joined_game', 'got_question', 'answered_question', 'got_scoreboard']
+        self.table = {}  # {player_id: {states}}
+        self._default_table = {key: None for key in self.states}  # default states when a player is added
+
+    def add_player(self, player_id):
+        if player_id not in self.table:  # only add the player if it isnt already present (prevent overwriting of their log)
+            self.table[player_id] = self._default_table
+
+    def put(self, player_id, state, state_value):
+        """
+        add a new state to the protocol
+        :param player_id: the player id
+        :param state: the state to add a value to. must be a valid one
+        :param state_value: the value to assign to the state
+        """
+        if state in self.states:  # only if state is valid, i.e. it is defined
+            if player_id in self.table:  # only if player was added before
+                self.table[player_id][state] = state_value
+            else:
+                warnings.warn('Player was not added to the protocol before. Function will have no effect.', Warning)
+        else:
+            warnings.warn('State is not valid. Function will have no effect. (maybe typo?)', Warning)
