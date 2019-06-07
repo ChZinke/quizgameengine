@@ -11,6 +11,7 @@ class Lobby:
         self.players = []
         self.socket = socket
         self.quiz = quiz
+        self.protocol = Protocol(self.quiz.get_id())
         self.add_player(first_player)
 
     def get_players(self):
@@ -22,6 +23,8 @@ class Lobby:
     def add_player(self, player):
         print('Added Player ' + str(player.get_id()) + ' to lobby')
         self.players.append(player)
+        self.protocol.add_player(player.get_id())
+        self.protocol.put(player.get_id(), 'joined_lobby', self.quiz.get_id())
         if self.has_required_players():
             self.open_game()
         else:
@@ -45,7 +48,7 @@ class Lobby:
 
     def open_game(self):
         print('opening game for ' + str(len(self.players)) + ' players')
-        GamePool.start_game(self.quiz, self.players, self.socket)
+        GamePool.start_game(self.quiz, self.players, self.socket, self.protocol)
         self.close_lobby()
 
     def close_lobby(self):
@@ -95,10 +98,10 @@ class GamePool:
     games = {}
 
     @staticmethod
-    def start_game(quiz, players, socket):
+    def start_game(quiz, players, socket, protocol):
         for id in range(0, 1000):
             if id not in GamePool.games:
-                game = Game(id, quiz, players, socket)
+                game = Game(id, quiz, players, socket, protocol)
                 GamePool.games[id] = game
                 GamePool.games[id].start()
                 break
@@ -115,10 +118,11 @@ class GamePool:
 
 
 class Game:
-    def __init__(self, id, quiz, players, socket):
+    def __init__(self, id, quiz, players, socket, protocol):
         self.id = id
         self.players = players
         self.quiz = quiz
+        self.protocol = protocol
         self.waiting_players = set()
 
         self.played_questions = 0
@@ -134,6 +138,9 @@ class Game:
     def get_id(self):
         return self.id
 
+    def get_protocol(self):
+        return self.protocol
+
     def get_players(self):
         return self.players
 
@@ -143,8 +150,9 @@ class Game:
     def get_waiting_players(self):
         return self.waiting_players
 
-    def add_waiting_player(self, player_id):
+    def add_waiting_player(self, player_id, question_id):
         self.waiting_players.add(player_id)
+        self.protocol.put(player_id, 'answered_question', question_id)
         self.check_for_next_question()
 
     def check_for_next_question(self):
@@ -162,6 +170,8 @@ class Game:
         msg = json.dumps({'type': 'game_start',
                           'game_id': self.id})
         self.notify_players(msg)
+        for player_id in self.player_ids:
+            self.protocol.put(player_id, 'joined_game', self.id)
         self.start_round()
 
     def start_round(self):
@@ -200,6 +210,8 @@ class Game:
                               'scoreboard': self.scoreboard
                               })
             self.notify_players(msg)
+            for player_id in self.player_ids:
+                self.protocol.put(player_id, 'got_question', next_question['id'])
         self.played_questions += 1
 
     def end(self):
@@ -210,10 +222,20 @@ class Game:
         msg = json.dumps({'type': 'scoreboard',
                           'scoreboard': self.scoreboard})
         self.notify_players(msg)
+        for player_id in self.player_ids:
+            self.protocol.put(player_id, 'got_scoreboard', True)
+        self.log_protocol()
 
     def save_end_results(self):
         # TODO
         pass
+
+    def log_protocol(self):
+        """
+        just for debugging
+        """
+        with open("protocol.json", "w", encoding="utf-8") as f:
+            json.dump(self.protocol.table, f)
 
     def update_scoreboard(self, player_id, score):
         if player_id in self.scoreboard:

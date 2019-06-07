@@ -74,7 +74,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                     game_id = msg['game_id']
                     question_id = msg['q_id']
                     GamePool.get_game(game_id).update_scoreboard(player_id, msg['played_question']['score'])
-                    GamePool.get_game(game_id).add_waiting_player(player_id)
+                    GamePool.get_game(game_id).add_waiting_player(player_id, question_id)
                     if msg['played_question']['is_correct'] == False:
                         GamePool.get_game(game_id).get_jackpot().increase_payout_chance(1)
                         GamePool.get_game(game_id).get_jackpot().add_points(200)  # TODO make this generic to questions worth, need to send this with the msg
