@@ -59,7 +59,7 @@ class Lobby:
                 print("closed lobby")
 
     def notify_players(self, message):
-        self.socket.notify_clients(message)
+        self.socket.notify_clients_lobby(self.quiz.get_id(), message)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -130,6 +130,7 @@ class Game:
         self.jackpot = Jackpot()
         self.player_ids = [player.get_id() for player in players]
         self.socket = socket
+        self.socket.set_game_id(self.id)
         self.scoreboard = {}
         self.item_table = ItemTable()
         for player_id in self.player_ids:
@@ -252,7 +253,7 @@ class Game:
         return len(self.waiting_players) == len(self.players)
 
     def notify_players(self, message):
-        self.socket.notify_clients(message)
+        self.socket.notify_clients_game(self.id, message)
 
 
 class Jackpot:

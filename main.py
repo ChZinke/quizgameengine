@@ -47,6 +47,8 @@ class LoginHandler(tornado.web.RequestHandler):
 class SimpleWebSocket(tornado.websocket.WebSocketHandler):
     pid = ''
     connections = set()
+    lobby_id = -1
+    game_id = -1
 
     def open(self, p_id):
         self.pid = int(p_id)
@@ -57,10 +59,11 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
         print("incoming message: " + message)
         if 'type' in msg:  # 'type' always needs to be in an incoming message
             if msg['type'] == 'user_message':
-                self.notify_clients(json.dumps(msg))
+                self.notify_clients_lobby(json.dumps(msg))
             elif msg['type'] == 'join_lobby':
                 player_id = msg['p_id']
                 quiz_id = msg['q_id']
+                self.lobby_id = quiz_id
                 player = get_player(player_id)
                 # TODO when quiz model implemented: quiz_id needs to be supplied
                 LobbyPool.join_lobby(player, self, quiz_id)  # TODO when quiz model implemented: quiz_id as 3rd parameter
@@ -93,23 +96,33 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 message = json.dumps({'type': 'item_activation',
                                       'item': item})
                 if item == 'jackpot':
-                    self.notify_clients(message)
+                    self.notify_clients_game(message)
                 else:
-                    self.notify_clients_except_self(p_id, message)
+                    self.notify_clients_game_except_self(p_id, message)
             else:
                 print('Could not resolve "type" key: ' + msg['type'])
 
         else:
             print('Message Error, key "type"')
 
-    def notify_clients(self, message):
-        for client in self.connections:
-            client.write_message(message)
+    def set_game_id(self, id):
+        self.game_id = id
 
-    def notify_clients_except_self(self, p_id, message):
+    def notify_clients_lobby(self, id_lobby, message):
         for client in self.connections:
-            if client.pid != p_id:
+            if client.lobby_id == id_lobby:
                 client.write_message(message)
+
+    def notify_clients_game(self, id_game, message):
+        for client in self.connections:
+            if client.game_id == id_game:
+                client.write_message(message)
+
+    def notify_clients_game_except_self(self, id_game, p_id, message):
+        for client in self.connections:
+            if client.game_id == id_game:
+                if client.pid != p_id:
+                    client.write_message(message)
 
     def on_close(self):
         self.connections.remove(self)
