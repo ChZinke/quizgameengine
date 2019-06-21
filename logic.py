@@ -2,6 +2,7 @@
 import json
 import random
 import warnings
+import CONSTANTS
 from model import *
 
 
@@ -198,9 +199,8 @@ class Game:
 
         if not end_flag:
             next_question = self.questions[self.played_questions].to_json()
-            # assign an item to a random wrong answer
-            rand_index = random.randint(1, len(next_question['answers']) - 1)
-            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect()
+            # assign an item (fixed probability to happen) to a random wrong answer
+            next_question = self.assign_item_eventually(next_question)
 
             msg = json.dumps({'type': 'question',
                               'question': next_question,
@@ -213,6 +213,13 @@ class Game:
             for player_id in self.player_ids:
                 self.protocol.put(player_id, 'got_question', next_question['id'])
         self.played_questions += 1
+
+    def assign_item_eventually(self, next_question):
+        chance = random.randint(1, 100)
+        if chance <= CONSTANTS.ITEM_ASSIGNMENT_PROBABILITY:
+            rand_index = random.randint(1, len(next_question['answers']) - 1)
+            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect()
+        return next_question
 
     def end(self):
         self.save_end_results()
