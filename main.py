@@ -63,7 +63,7 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
             elif msg['type'] == 'join_lobby':
                 player_id = msg['p_id']
                 quiz_id = msg['q_id']
-                self.lobby_id = quiz_id
+                self.lobby_id = int(quiz_id)
                 player = get_player(player_id)
                 # TODO when quiz model implemented: quiz_id needs to be supplied
                 LobbyPool.join_lobby(player, self, quiz_id)  # TODO when quiz model implemented: quiz_id as 3rd parameter
@@ -71,6 +71,8 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
                 player_id = msg['p_id']
                 player = get_player(player_id)
                 LobbyPool.leave_lobby(player)
+            elif msg['type'] == 'game_id_check':
+                self.game_id = int(msg['game_id'])
             elif msg['type'] == 'answered_question':
                 if all(key in msg for key in ('game_id', 'q_id', 'played_question')):  # we now also need game_id, q_id and played_question for answer signal
                     player_id = msg['p_id']
@@ -110,17 +112,17 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 
     def notify_clients_lobby(self, id_lobby, message):
         for client in self.connections:
-            if client.lobby_id == id_lobby:
+            if client.lobby_id == int(id_lobby):
                 client.write_message(message)
 
     def notify_clients_game(self, id_game, message):
         for client in self.connections:
-            if client.game_id == id_game:
+            if client.game_id == int(id_game):
                 client.write_message(message)
 
     def notify_clients_game_except_self(self, id_game, p_id, message):
         for client in self.connections:
-            if client.game_id == id_game:
+            if client.game_id == int(id_game):
                 if client.pid != p_id:
                     client.write_message(message)
 

@@ -679,6 +679,11 @@
                 //enough players in the lobby --> games starts
                 case "game_start":{
                     gameID = messageDict.game_id;
+                    var payload = {
+                        'type': 'game_id_check',
+                        'game_id': gameID
+                    }
+                    sendSocket(payload);
                     startGame();
                 }
                 break;
