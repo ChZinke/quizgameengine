@@ -329,9 +329,21 @@ class Jackpot:
 
 class Item:
     def __init__(self):
-        self.possible_effects = ['scoreX2', 'scoreX5', 'score/2', 'shuffle_question', 'jackpot', 'bomb', 'move_answers', 'hide_scoreboard', 'get_points_save']  # further possibilites: jackpot next question, freeze other players,
+        # dict with effect as key and initial impact value as value, all values tbd further
+        # further possibilites: freeze other players,
+        self.possible_effects = {
+            'scoreX2': 2,
+            'scoreX5': 3,
+            'score/2': 2,
+            'shuffle_question': 3,  # maybe even 4
+            'jackpot': 5,
+            'bomb': 2,
+            'move_answers': 3,
+            'hide_scoreboard': 1,
+            'get_points_save': 2
+        }
         self.debug = ['move_answers']
-        self.effect = random.choice(self.possible_effects)
+        self.effect = random.choice(list(self.possible_effects))
 
     def get_effect(self):
         return self.effect
