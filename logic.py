@@ -218,7 +218,7 @@ class Game:
         chance = random.randint(1, 100)
         if chance <= CONSTANTS.ITEM_ASSIGNMENT_PROBABILITY:
             rand_index = random.randint(1, len(next_question['answers']) - 1)
-            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect()
+            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect(self.scoreboard)
         return next_question
 
     def end(self):
@@ -345,7 +345,18 @@ class Item:
         self.debug = ['move_answers']
         self.effect = random.choice(list(self.possible_effects))
 
-    def get_effect(self):
+    def get_effect(self, scoreboard):
+        sorted_scoreboard = sorted(scoreboard.items(), key=lambda kv: kv[1], reverse=True)
+        effect_distribution = {}
+        """
+        for player in sorted_scoreboard:
+            effect_distribution[player] = {}
+            # position relative = 1 - (position in scoreboard / number of players)
+
+            position_relative = 1 - ((sorted_scoreboard.index(player)) / (len(sorted_scoreboard)))
+            for item in self.possible_effects:
+                pass
+        """
         return self.effect
 
 
