@@ -905,7 +905,7 @@
             userdiv.appendChild(imgdiv)
             userdiv.appendChild(udivdesc)
             userBox.appendChild(userdiv)
-            userBox.setAttribute('id', lobby[id]);
+            userBox.setAttribute('id', 'u' + lobby[id]); //id's here cant be simply numbers because answers have those ids --> use prefix u
             document.getElementById("contacts").appendChild(userBox);
         }
     }
@@ -916,11 +916,13 @@
         for (answerid in answers ){
             var answerElement = document.getElementById("a"+(parseFloat(answerid)+1))
             answerElement.innerHTML = answers[answerid].content;
-            if (answers[answerid].hasOwnProperty("assigned_effect")){
-                var effectElement = document.createElement('i');
-                effectElement.className = "fas fa-star ml-5 item";
-                effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effect));
-                answerElement.appendChild(effectElement);
+            if (answers[answerid].hasOwnProperty("assigned_effects")){
+                if(answers[answerid].assigned_effects.hasOwnProperty(pID)){
+                    var effectElement = document.createElement('i');
+                    effectElement.className = "fas fa-star ml-5 item";
+                    effectElement.appendChild(document.createTextNode(answers[answerid].assigned_effects[pID]));
+                    answerElement.appendChild(effectElement);
+                }
             }
         }
     }

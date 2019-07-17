@@ -218,7 +218,7 @@ class Game:
         chance = random.randint(1, 100)
         if chance <= CONSTANTS.ITEM_ASSIGNMENT_PROBABILITY:
             rand_index = random.randint(1, len(next_question['answers']) - 1)
-            next_question['answers'][rand_index]['assigned_effect'] = Item().get_effect(self.scoreboard)
+            next_question['answers'][rand_index]['assigned_effects'] = Item().get_effect(self.scoreboard)
         return next_question
 
     def end(self):
@@ -332,32 +332,37 @@ class Item:
         # dict with effect as key and initial impact value as value, all values tbd further
         # further possibilites: freeze other players,
         self.possible_effects = {
-            'scoreX2': 2,
-            'scoreX5': 3,
-            'score/2': 2,
-            'shuffle_question': 3,  # maybe even 4
-            'jackpot': 5,
-            'bomb': 2,
-            'move_answers': 3,
-            'hide_scoreboard': 1,
-            'get_points_save': 2
+            'scoreX2': 0.3,
+            'scoreX5': 0.7,
+            'score/2': 0.5,
+            'shuffle_question': 0.8,
+            'jackpot': 1,
+            'bomb': 0.6,
+            'move_answers': 0.7,
+            'hide_scoreboard': 0.1,
+            'get_points_save': 0.2
         }
         self.debug = ['move_answers']
-        self.effect = random.choice(list(self.possible_effects))
 
     def get_effect(self, scoreboard):
+        """
+        determines the items for every player
+        """
         sorted_scoreboard = sorted(scoreboard.items(), key=lambda kv: kv[1], reverse=True)
         effect_distribution = {}
-        """
-        for player in sorted_scoreboard:
-            effect_distribution[player] = {}
-            # position relative = 1 - (position in scoreboard / number of players)
 
-            position_relative = 1 - ((sorted_scoreboard.index(player)) / (len(sorted_scoreboard)))
+        for player in sorted_scoreboard:
+            # position relative = (position in scoreboard / number of players)
+            position_relative = (sorted_scoreboard.index(player)) / (len(sorted_scoreboard))
+            lower_bound = position_relative
+            upper_bound = position_relative + CONSTANTS.RELATIVE_POSITION_DEVIATION
+            considered_items = {}
             for item in self.possible_effects:
-                pass
-        """
-        return self.effect
+                if self.possible_effects[item] >= lower_bound and self.possible_effects[item] <= upper_bound:
+                    considered_items[item] = item
+            if considered_items:
+                effect_distribution[player[0]] = random.choice(list(considered_items))  #player[0] because it is a tuple, we only need id though
+        return effect_distribution
 
 
 class ItemTable:
