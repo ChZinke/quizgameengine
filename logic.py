@@ -354,7 +354,9 @@ class Item:
         for player in sorted_scoreboard:
             # position relative = (position in scoreboard / number of players)
             position_relative = (sorted_scoreboard.index(player)) / (len(sorted_scoreboard))
-            lower_bound = position_relative
+            lower_bound = position_relative - CONSTANTS.RELATIVE_POSITION_DEVIATION
+            if lower_bound < 0:
+                lower_bound = 0
             upper_bound = position_relative + CONSTANTS.RELATIVE_POSITION_DEVIATION
             considered_items = {}
             for item in self.possible_effects:
